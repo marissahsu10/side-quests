@@ -1,8 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Sparkles, CheckSquare, Square, Trash2, Edit2, Wand2, Brain, Mic, ArrowLeft, X, Trophy, GripVertical } from 'lucide-react';
+import { Plus, CheckSquare, Square, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, GripVertical } from 'lucide-react';
 
 // ============================================
-// ICONS
+// DESIGN TOKENS - Single source of truth
+// ============================================
+const COLORS = {
+  bg: '#030712',
+  card: 'rgba(17, 24, 39, 0.6)',      // gray-900/60
+  cardHover: 'rgba(17, 24, 39, 0.4)', // gray-900/40
+  border: 'rgba(31, 41, 55, 0.5)',    // gray-800/50
+  borderLight: 'rgba(31, 41, 55, 0.3)',
+  text: '#E5E7EB',
+  textMuted: '#6A7282',
+  primary: '#F6339A',      // hot pink - buttons, active tab, Brain Dump
+  secondary: '#4C6FFF',    // blue - Non-Urgent bullet, energy selector
+  urgent: '#f97316',       // orange - Urgent section
+  success: '#34d399',      // emerald - Completed, checkmarks
+  deadline: '#F6339A',     // pink for deadlines
+  shadow: '#0f172a',
+};
+
+// ============================================
+// PIXEL ICONS
 // ============================================
 
 const PixelSword = ({ size = 32 }) => (
@@ -11,40 +30,40 @@ const PixelSword = ({ size = 32 }) => (
     <rect x="6" y="1" width="1" height="8" fill="#e879f9"/>
     <rect x="9" y="1" width="1" height="8" fill="#f5d0fe"/>
     <rect x="4" y="10" width="8" height="2" fill="#fbbf24"/>
-    <rect x="7" y="12" width="2" height="3" fill="#ec4899"/>
+    <rect x="7" y="12" width="2" height="3" fill={COLORS.primary}/>
     <rect x="6" y="15" width="4" height="1" fill="#f0abfc"/>
   </svg>
 );
 
 const PixelScroll = ({ size = 48 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
-    <rect x="3" y="1" width="10" height="2" fill="#6A7282"/>
-    <rect x="2" y="2" width="1" height="12" fill="#6A7282"/>
+    <rect x="3" y="1" width="10" height="2" fill={COLORS.textMuted}/>
+    <rect x="2" y="2" width="1" height="12" fill={COLORS.textMuted}/>
     <rect x="13" y="2" width="1" height="12" fill="#4a5568"/>
     <rect x="3" y="3" width="10" height="10" fill="#374151"/>
     <rect x="3" y="13" width="10" height="2" fill="#4a5568"/>
-    <rect x="5" y="5" width="6" height="1" fill="#6A7282"/>
-    <rect x="5" y="7" width="4" height="1" fill="#6A7282"/>
-    <rect x="5" y="9" width="5" height="1" fill="#6A7282"/>
+    <rect x="5" y="5" width="6" height="1" fill={COLORS.textMuted}/>
+    <rect x="5" y="7" width="4" height="1" fill={COLORS.textMuted}/>
+    <rect x="5" y="9" width="5" height="1" fill={COLORS.textMuted}/>
   </svg>
 );
 
 const PixelSparkle = ({ size = 48 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
-    <rect x="7" y="0" width="2" height="3" fill="#d946ef"/>
-    <rect x="7" y="13" width="2" height="3" fill="#d946ef"/>
-    <rect x="0" y="7" width="3" height="2" fill="#d946ef"/>
-    <rect x="13" y="7" width="3" height="2" fill="#d946ef"/>
-    <rect x="3" y="3" width="2" height="2" fill="#ec4899"/>
-    <rect x="11" y="3" width="2" height="2" fill="#ec4899"/>
-    <rect x="3" y="11" width="2" height="2" fill="#ec4899"/>
-    <rect x="11" y="11" width="2" height="2" fill="#ec4899"/>
-    <rect x="6" y="6" width="4" height="4" fill="#4C6FFF"/>
+    <rect x="7" y="0" width="2" height="3" fill={COLORS.primary}/>
+    <rect x="7" y="13" width="2" height="3" fill={COLORS.primary}/>
+    <rect x="0" y="7" width="3" height="2" fill={COLORS.primary}/>
+    <rect x="13" y="7" width="3" height="2" fill={COLORS.primary}/>
+    <rect x="3" y="3" width="2" height="2" fill={COLORS.secondary}/>
+    <rect x="11" y="3" width="2" height="2" fill={COLORS.secondary}/>
+    <rect x="3" y="11" width="2" height="2" fill={COLORS.secondary}/>
+    <rect x="11" y="11" width="2" height="2" fill={COLORS.secondary}/>
+    <rect x="6" y="6" width="4" height="4" fill={COLORS.secondary}/>
   </svg>
 );
 
 // ============================================
-// COMPONENTS
+// REUSABLE COMPONENTS
 // ============================================
 
 const CelebrationOverlay = ({ show, message }) => {
@@ -52,7 +71,7 @@ const CelebrationOverlay = ({ show, message }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
       <div className="flex flex-col items-center animate-celebrate">
-        <Trophy size={56} className="text-amber-400" style={{ filter: 'drop-shadow(0 0 10px currentColor)' }} />
+        <Trophy size={56} style={{ color: '#fbbf24', filter: 'drop-shadow(0 0 10px #fbbf24)' }} />
         <span className="mt-2 text-lg font-bold text-white drop-shadow-lg">{message}</span>
       </div>
     </div>
@@ -64,36 +83,36 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
   return (
-    <svg width={size} height={size} className="transform -rotate-90">
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#1f2937" strokeWidth={strokeWidth} />
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#d946ef" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-500" />
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={COLORS.border} strokeWidth={strokeWidth} />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={COLORS.primary} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: 'all 0.5s' }} />
     </svg>
   );
 };
 
 const EnergyIndicator = ({ level }) => {
   const config = {
-    low: { color: '#34d399', label: 'Low' },
+    low: { color: COLORS.success, label: 'Low' },
     medium: { color: '#fbbf24', label: 'Med' },
-    high: { color: '#f97316', label: 'High' }
+    high: { color: COLORS.urgent, label: 'High' }
   };
   return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
 };
 
 const SectionHeader = ({ title, count, color }) => (
-  <div className="flex items-center gap-2 mb-3">
-    <div className="w-2 h-2 pixel-dot" style={{ backgroundColor: color }} />
-    <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px]">{title}</h2>
-    <span className="text-[12px] text-[#6A7282]">({count})</span>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+    <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: color }} />
+    <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
+    <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
   </div>
 );
 
 const EmptyState = ({ icon: Icon, description, action, actionLabel }) => (
-  <div className="text-center py-12 px-6">
-    <div className="flex justify-center mb-4"><Icon size={48} /></div>
-    <p className="text-[#6A7282] mb-6 max-w-xs mx-auto text-sm">{description}</p>
+  <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><Icon size={48} /></div>
+    <p style={{ color: COLORS.textMuted, marginBottom: '24px', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', fontSize: '14px' }}>{description}</p>
     {action && (
-      <button onClick={action} className="px-6 py-2.5 bg-fuchsia-500/20 text-fuchsia-400 rounded font-medium pixel-shadow">
+      <button onClick={action} className="pixel-shadow" style={{ padding: '10px 24px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
         {actionLabel}
       </button>
     )}
@@ -130,13 +149,13 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-6">
-      <div className="mb-8 text-center">
-        <div className="flex justify-center mb-4"><PixelSword size={48} /></div>
-        <h1 className="font-pixel-title text-[32px] text-[#E5E7EB] leading-[28px] mb-3">Side Quests</h1>
-        <p className="text-[#6A7282] text-sm">Enter PIN to continue</p>
+    <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><PixelSword size={48} /></div>
+        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>Side Quests</h1>
+        <p style={{ color: COLORS.textMuted, fontSize: '14px' }}>Enter PIN to continue</p>
       </div>
-      <div className="w-full max-w-xs">
+      <div style={{ width: '100%', maxWidth: '280px' }}>
         <input
           type="password"
           inputMode="numeric"
@@ -144,13 +163,24 @@ const LoginScreen = ({ onLogin }) => {
           onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="••••"
-          className={`w-full text-center text-2xl tracking-widest bg-gray-900/60 px-4 py-4 text-[#E5E7EB] placeholder-[#6A7282] rounded border-2 ${error ? 'border-red-500 animate-shake' : 'border-gray-800/50'} focus:border-fuchsia-500/50 focus:outline-none`}
+          className={error ? 'animate-shake' : ''}
+          style={{ 
+            width: '100%', textAlign: 'center', fontSize: '24px', letterSpacing: '0.5em',
+            backgroundColor: COLORS.card, padding: '16px', color: COLORS.text,
+            borderRadius: '4px', border: `2px solid ${error ? '#ef4444' : COLORS.border}`,
+            outline: 'none', boxSizing: 'border-box'
+          }}
           autoFocus
         />
         <button
           onClick={handleSubmit}
           disabled={pin.length < 4}
-          className="mt-4 w-full bg-fuchsia-500 text-white py-4 rounded font-medium disabled:opacity-40 pixel-shadow"
+          className="pixel-shadow"
+          style={{ 
+            marginTop: '16px', width: '100%', backgroundColor: COLORS.primary, color: 'white',
+            padding: '16px', borderRadius: '4px', fontWeight: 500, border: 'none',
+            opacity: pin.length < 4 ? 0.4 : 1, cursor: pin.length < 4 ? 'default' : 'pointer'
+          }}
         >
           Unlock
         </button>
@@ -160,7 +190,7 @@ const LoginScreen = ({ onLogin }) => {
 };
 
 // ============================================
-// TASK FORM - Save button at bottom
+// TASK FORM
 // ============================================
 
 const TaskForm = ({ task, onSave, onCancel }) => {
@@ -175,48 +205,67 @@ const TaskForm = ({ task, onSave, onCancel }) => {
     onSave({ title, urgent, energy, deadline, notes, subtasks: task?.subtasks || [] });
   };
 
+  const inputStyle = {
+    width: '100%', backgroundColor: COLORS.card, padding: '14px 16px',
+    color: COLORS.text, fontSize: '16px', borderRadius: '4px',
+    border: `1px solid ${COLORS.border}`, outline: 'none', boxSizing: 'border-box'
+  };
+
+  const buttonStyle = (isActive) => ({
+    padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px',
+    border: isActive ? 'none' : `1px solid ${COLORS.border}`,
+    backgroundColor: isActive ? COLORS.primary : COLORS.card,
+    color: isActive ? 'white' : COLORS.textMuted,
+    cursor: 'pointer'
+  });
+
+  const energyButtonStyle = (isActive) => ({
+    ...buttonStyle(isActive),
+    backgroundColor: isActive ? COLORS.secondary : COLORS.card,
+  });
+
   return (
-    <div className="fixed inset-0 bg-[#030712] z-50 flex flex-col">
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: COLORS.bg, zIndex: 50, display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div className="bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-3 flex items-center gap-3">
-        <button onClick={onCancel} className="p-2 -ml-2"><X size={22} className="text-[#6A7282]" /></button>
-        <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">{task?.id ? 'Edit Quest' : 'New Quest'}</h2>
+      <div style={{ backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}`, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button onClick={onCancel} style={{ padding: '8px', marginLeft: '-8px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={22} color={COLORS.textMuted} /></button>
+        <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', flex: 1 }}>{task?.id ? 'Edit Quest' : 'New Quest'}</h2>
       </div>
 
-      {/* Form Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      {/* Form */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <label className="block text-[#6A7282] mb-2 text-sm">What needs doing?</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Set up Roth IRA" className="w-full bg-gray-900/60 px-4 py-3.5 text-[#E5E7EB] placeholder-[#6A7282] text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>What needs doing?</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Set up Roth IRA" style={inputStyle} />
         </div>
         <div>
-          <label className="block text-[#6A7282] mb-2 text-sm">Priority</label>
-          <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => setUrgent(true)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${urgent ? 'bg-orange-500 text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>Urgent</button>
-            <button type="button" onClick={() => setUrgent(false)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${!urgent ? 'bg-fuchsia-500 text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>Someday</button>
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Priority</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <button type="button" onClick={() => setUrgent(true)} className="pixel-shadow" style={{ ...buttonStyle(urgent), backgroundColor: urgent ? COLORS.urgent : COLORS.card }}>Urgent</button>
+            <button type="button" onClick={() => setUrgent(false)} className="pixel-shadow" style={buttonStyle(!urgent)}>Someday</button>
           </div>
         </div>
         <div>
-          <label className="block text-[#6A7282] mb-2 text-sm">Energy needed</label>
-          <div className="grid grid-cols-3 gap-2">
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Energy needed</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
             {['low', 'medium', 'high'].map((level) => (
-              <button key={level} type="button" onClick={() => setEnergy(level)} className={`py-3.5 rounded font-medium capitalize text-base pixel-shadow ${energy === level ? 'bg-[#4C6FFF] text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>{level}</button>
+              <button key={level} type="button" onClick={() => setEnergy(level)} className="pixel-shadow" style={energyButtonStyle(energy === level)}>{level.charAt(0).toUpperCase() + level.slice(1)}</button>
             ))}
           </div>
         </div>
         <div>
-          <label className="block text-[#6A7282] mb-2 text-sm">Deadline (optional)</label>
-          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="w-full bg-gray-900/60 px-4 py-3.5 text-[#E5E7EB] text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Deadline (optional)</label>
+          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} style={inputStyle} />
         </div>
         <div>
-          <label className="block text-[#6A7282] mb-2 text-sm">Notes (optional)</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." className="w-full bg-gray-900/60 px-4 py-3 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={4} />
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Notes (optional)</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." rows={4} style={{ ...inputStyle, resize: 'none' }} />
         </div>
       </div>
 
-      {/* Save Button - Fixed at bottom */}
-      <div className="p-4 border-t border-gray-800/50 bg-[#030712]">
-        <button onClick={handleSave} disabled={!title.trim()} className="w-full bg-fuchsia-500 text-white py-4 rounded font-medium disabled:opacity-40 pixel-shadow">
+      {/* Save Button */}
+      <div style={{ padding: '16px', borderTop: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bg }}>
+        <button onClick={handleSave} disabled={!title.trim()} className="pixel-shadow" style={{ width: '100%', backgroundColor: COLORS.primary, color: 'white', padding: '16px', borderRadius: '4px', fontWeight: 500, border: 'none', opacity: !title.trim() ? 0.4 : 1, cursor: !title.trim() ? 'default' : 'pointer' }}>
           Save Quest
         </button>
       </div>
@@ -246,19 +295,13 @@ const SideQuests = () => {
   const urgentSectionRef = useRef(null);
   const nonUrgentSectionRef = useRef(null);
 
-  // Auth check
-  useEffect(() => {
-    if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true);
-  }, []);
+  useEffect(() => { if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true); }, []);
 
-  // Speech recognition setup
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const r = new SpeechRecognition();
-      r.continuous = false;
-      r.interimResults = false;
-      r.lang = 'en-US';
+      r.continuous = false; r.interimResults = false; r.lang = 'en-US';
       r.onresult = (e) => setNewDump(prev => prev ? prev + ' ' + e.results[0][0].transcript : e.results[0][0].transcript);
       r.onend = () => setIsListening(false);
       r.onerror = () => setIsListening(false);
@@ -266,7 +309,6 @@ const SideQuests = () => {
     }
   }, []);
 
-  // iOS Shortcut dictation
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('dictate') === 'true') {
@@ -276,7 +318,6 @@ const SideQuests = () => {
     }
   }, [recognition]);
 
-  // Load data
   useEffect(() => {
     const savedDumps = storage.get('side-quests-dumps');
     const savedTasks = storage.get('side-quests-tasks');
@@ -284,7 +325,6 @@ const SideQuests = () => {
     if (savedTasks) setTasks(savedTasks);
   }, []);
 
-  // Browser back button
   useEffect(() => {
     const handlePopState = () => {
       if (showTaskForm) { setShowTaskForm(false); setEditingTask(null); }
@@ -294,12 +334,10 @@ const SideQuests = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [showTaskForm, selectedTask]);
 
-  // Data helpers
   const saveDumps = (dumps) => { setBrainDumps(dumps); storage.set('side-quests-dumps', dumps); };
   const saveTasks = (t) => { setTasks(t); storage.set('side-quests-tasks', t); };
   const getDaysWaiting = (date) => Math.floor((Date.now() - new Date(date)) / (1000 * 60 * 60 * 24));
 
-  // Actions
   const openTaskDetail = (task) => { window.history.pushState({ view: 'detail' }, ''); setSelectedTask(task); };
   const openTaskForm = (task = null) => { window.history.pushState({ view: 'form' }, ''); setEditingTask(task); setShowTaskForm(true); };
   const closeTaskDetail = () => window.history.back();
@@ -357,7 +395,6 @@ const SideQuests = () => {
   const deleteTask = (id) => { saveTasks(tasks.filter(t => t.id !== id)); if (selectedTask?.id === id) setSelectedTask(null); };
   const clearCompleted = () => saveTasks(tasks.filter(t => !t.completed));
 
-  // Drag handlers
   const handleDragMove = (clientY) => {
     if (!draggedTask) return;
     const urgentRect = urgentSectionRef.current?.getBoundingClientRect();
@@ -377,12 +414,11 @@ const SideQuests = () => {
     setDropTarget(null);
   };
 
-  // Task lists
   const urgentTasks = tasks.filter(t => t.urgent && !t.completed);
   const nonUrgentTasks = tasks.filter(t => !t.urgent && !t.completed);
   const completedTasks = tasks.filter(t => t.completed);
 
-  // Task Card Component
+  // Task Card
   const TaskCard = ({ task }) => {
     const [swipeX, setSwipeX] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -425,34 +461,34 @@ const SideQuests = () => {
     };
 
     return (
-      <div className={`relative overflow-hidden rounded touch-none ${isBeingDragged ? 'opacity-30' : ''}`}>
-        <div className={`absolute inset-0 bg-red-500/30 flex items-center justify-end pr-6 transition-opacity ${swipeX < -30 ? 'opacity-100' : 'opacity-0'}`}>
-          <Trash2 size={22} className="text-red-400" />
+      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '4px', touchAction: 'none', opacity: isBeingDragged ? 0.3 : 1 }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '24px', opacity: swipeX < -30 ? 1 : 0, transition: 'opacity 0.2s' }}>
+          <Trash2 size={22} color="#f87171" />
         </div>
         <div
-          className="relative bg-gray-900/60 rounded border border-gray-800/50 pixel-card"
-          style={{ transform: `translateX(${swipeX}px)` }}
+          className="pixel-card"
+          style={{ position: 'relative', backgroundColor: COLORS.card, borderRadius: '4px', border: `1px solid ${COLORS.border}`, transform: `translateX(${swipeX}px)` }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div className="p-4">
-            <div className="flex items-start gap-3">
-              <GripVertical size={20} className="text-[#6A7282] flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0" onClick={() => { if (!isDragging && swipeX === 0) openTaskDetail(task); }}>
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-medium text-[#E5E7EB] leading-tight">{task.title}</h3>
+          <div style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <GripVertical size={20} color={COLORS.textMuted} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ flex: 1, minWidth: 0 }} onClick={() => { if (!isDragging && swipeX === 0) openTaskDetail(task); }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 500, color: COLORS.text, lineHeight: 1.4, margin: 0 }}>{task.title}</h3>
                   {subtaskProgress !== null && (
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                       <ProgressRing progress={subtaskProgress} size={18} strokeWidth={2} />
-                      <span className="text-xs text-[#6A7282]">{subtaskProgress}%</span>
+                      <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{subtaskProgress}%</span>
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                   <EnergyIndicator level={task.energy} />
-                  {task.deadline && <span className="text-xs text-pink-400">{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
-                  {!task.urgent && daysWaiting > 7 && <span className="text-xs text-fuchsia-400">✨ Marinating</span>}
+                  {task.deadline && <span style={{ fontSize: '12px', color: COLORS.deadline }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                  {!task.urgent && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>✨ Marinating</span>}
                 </div>
               </div>
             </div>
@@ -462,60 +498,59 @@ const SideQuests = () => {
     );
   };
 
-  // Login gate
   if (!isLoggedIn) return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
 
-  // Task Detail View
+  // Task Detail
   if (selectedTask) {
     const currentTask = tasks.find(t => t.id === selectedTask.id) || selectedTask;
     const subtaskProgress = currentTask.subtasks?.length ? Math.round((currentTask.subtasks.filter(s => s.completed).length / currentTask.subtasks.length) * 100) : 0;
 
     return (
-      <div className="min-h-screen bg-[#030712]">
-        <div className="sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50">
-          <div className="px-4 py-3 flex items-center gap-3">
-            <button onClick={closeTaskDetail} className="p-2 -ml-2"><ArrowLeft size={22} className="text-[#6A7282]" /></button>
-            <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">Quest Details</h2>
-            <button onClick={() => openTaskForm(currentTask)} className="p-2"><Edit2 size={20} className="text-[#6A7282]" /></button>
-            <button onClick={() => { if (window.confirm('Delete?')) deleteTask(currentTask.id); }} className="p-2"><Trash2 size={20} className="text-red-400" /></button>
+      <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg }}>
+        <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}` }}>
+          <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button onClick={closeTaskDetail} style={{ padding: '8px', marginLeft: '-8px', background: 'none', border: 'none', cursor: 'pointer' }}><ArrowLeft size={22} color={COLORS.textMuted} /></button>
+            <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', flex: 1 }}>Quest Details</h2>
+            <button onClick={() => openTaskForm(currentTask)} style={{ padding: '8px', background: 'none', border: 'none', cursor: 'pointer' }}><Edit2 size={20} color={COLORS.textMuted} /></button>
+            <button onClick={() => { if (window.confirm('Delete?')) deleteTask(currentTask.id); }} style={{ padding: '8px', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={20} color="#f87171" /></button>
           </div>
         </div>
-        <div className="px-4 py-5 space-y-4">
-          <div className="bg-gray-900/60 p-5 rounded border border-gray-800/50 pixel-card">
-            <div className="flex items-start gap-3 mb-4">
-              <button onClick={() => toggleTask(currentTask.id)} className="mt-0.5 flex-shrink-0">
-                {currentTask.completed ? <CheckSquare size={28} className="text-emerald-400" /> : <Square size={28} className="text-[#6A7282]" />}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+              <button onClick={() => toggleTask(currentTask.id)} style={{ marginTop: '2px', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                {currentTask.completed ? <CheckSquare size={28} color={COLORS.success} /> : <Square size={28} color={COLORS.textMuted} />}
               </button>
-              <h1 className={`text-xl font-semibold leading-tight ${currentTask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>{currentTask.title}</h1>
+              <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0 }}>{currentTask.title}</h1>
             </div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className={`text-xs px-3 py-1.5 rounded border ${currentTask.urgent ? 'text-orange-300 bg-orange-500/15 border-orange-500/30' : 'text-fuchsia-300 bg-fuchsia-500/15 border-fuchsia-500/30'}`}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
-              <span className="text-xs px-3 py-1.5 rounded text-[#4C6FFF] bg-[#4C6FFF]/15 border border-[#4C6FFF]/30">{currentTask.energy} energy</span>
-              {currentTask.deadline && <span className="text-xs px-3 py-1.5 rounded text-pink-300 bg-pink-500/15 border border-pink-500/30">{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.urgent ? '#fdba74' : COLORS.secondary, backgroundColor: currentTask.urgent ? `${COLORS.urgent}26` : `${COLORS.secondary}26`, border: `1px solid ${currentTask.urgent ? `${COLORS.urgent}4d` : `${COLORS.secondary}4d`}` }}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)' }}>{currentTask.energy} energy</span>
+              {currentTask.deadline && <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: COLORS.primary, backgroundColor: `${COLORS.primary}26`, border: `1px solid ${COLORS.primary}4d` }}>{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
             </div>
-            {currentTask.notes && <div className="pt-4 border-t border-gray-800/50"><p className="text-[#6A7282] whitespace-pre-wrap">{currentTask.notes}</p></div>}
+            {currentTask.notes && <div style={{ paddingTop: '16px', borderTop: `1px solid ${COLORS.border}` }}><p style={{ color: COLORS.textMuted, whiteSpace: 'pre-wrap', margin: 0 }}>{currentTask.notes}</p></div>}
           </div>
-          <div className="bg-gray-900/60 p-5 rounded border border-gray-800/50 pixel-card">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px]">Steps</h3>
+          <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h3 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Steps</h3>
               {currentTask.subtasks?.length > 0 && (
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <ProgressRing progress={subtaskProgress} size={24} strokeWidth={2.5} />
-                  <span className="text-sm text-[#6A7282]">{subtaskProgress}%</span>
+                  <span style={{ fontSize: '14px', color: COLORS.textMuted }}>{subtaskProgress}%</span>
                 </div>
               )}
             </div>
             {!currentTask.subtasks?.length ? (
-              <div className="text-center py-6">
-                <p className="text-[#6A7282] mb-4">Break this into smaller steps</p>
-                <button className="px-6 py-3 bg-fuchsia-500/20 text-fuchsia-300 rounded font-medium pixel-shadow"><Wand2 size={16} className="inline mr-2" />AI Break Down</button>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <p style={{ color: COLORS.textMuted, marginBottom: '16px' }}>Break this into smaller steps</p>
+                <button className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}><Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down</button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {currentTask.subtasks.map((subtask, idx) => (
-                  <button key={idx} onClick={() => toggleSubtask(currentTask.id, idx)} className="w-full flex items-start gap-3 p-3 bg-[#030712] rounded text-left">
-                    {subtask.completed ? <CheckSquare size={20} className="text-emerald-400 flex-shrink-0" /> : <Square size={20} className="text-[#6A7282] flex-shrink-0" />}
-                    <span className={`flex-1 ${subtask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>{subtask.text}</span>
+                  <button key={idx} onClick={() => toggleSubtask(currentTask.id, idx)} style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', backgroundColor: COLORS.bg, borderRadius: '4px', textAlign: 'left', border: 'none', cursor: 'pointer' }}>
+                    {subtask.completed ? <CheckSquare size={20} color={COLORS.success} style={{ flexShrink: 0 }} /> : <Square size={20} color={COLORS.textMuted} style={{ flexShrink: 0 }} />}
+                    <span style={{ flex: 1, color: subtask.completed ? COLORS.textMuted : COLORS.text, textDecoration: subtask.completed ? 'line-through' : 'none' }}>{subtask.text}</span>
                   </button>
                 ))}
               </div>
@@ -529,54 +564,56 @@ const SideQuests = () => {
 
   // Main View
   return (
-    <div className="min-h-screen bg-[#030712] text-[#E5E7EB] pb-28">
-      {/* Google Font - loaded directly for better mobile support */}
+    <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, color: COLORS.text, paddingBottom: '112px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       
       <CelebrationOverlay show={celebration.show} message={celebration.message} />
       
       {draggedTask && (
-        <div className="fixed z-50 pointer-events-none bg-gray-900 border-2 border-fuchsia-500 rounded p-3 opacity-90 pixel-shadow" style={{ left: dragPosition.x - 100, top: dragPosition.y - 30, width: '200px' }}>
-          <p className="text-sm text-[#E5E7EB] truncate">{draggedTask.title}</p>
+        <div className="pixel-shadow" style={{ position: 'fixed', zIndex: 50, pointerEvents: 'none', backgroundColor: COLORS.card, border: `2px solid ${COLORS.primary}`, borderRadius: '4px', padding: '12px', opacity: 0.9, left: dragPosition.x - 100, top: dragPosition.y - 30, width: '200px' }}>
+          <p style={{ fontSize: '14px', color: COLORS.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{draggedTask.title}</p>
         </div>
       )}
 
-      <div className="sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50">
-        <div className="px-5 py-4">
-          <div className="flex items-center gap-3">
+      {/* Header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}` }}>
+        <div style={{ padding: '16px 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <PixelSword size={32} />
-            <h1 className="font-pixel-title text-[32px] text-[#E5E7EB] leading-[28px]">Side Quests</h1>
+            <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Side Quests</h1>
           </div>
         </div>
-        <div className="flex">
-          <button onClick={() => setView('brain-dump')} className={`flex-1 py-3 font-pixel text-[10px] leading-[24px] text-center border-b-2 ${view === 'brain-dump' ? 'text-fuchsia-400 border-fuchsia-400' : 'text-[#6A7282] border-transparent'}`}>
-            Brain Dump {brainDumps.length > 0 && <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-fuchsia-500/20 text-fuchsia-400">{brainDumps.length}</span>}
+        {/* Tabs - 16px */}
+        <div style={{ display: 'flex' }}>
+          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary }}>{brainDumps.length}</span>}
           </button>
-          <button onClick={() => setView('tasks')} className={`flex-1 py-3 font-pixel text-[10px] leading-[24px] text-center border-b-2 ${view === 'tasks' ? 'text-pink-400 border-pink-400' : 'text-[#6A7282] border-transparent'}`}>
-            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-pink-500/20 text-pink-400">{urgentTasks.length + nonUrgentTasks.length}</span>}
+          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
           </button>
         </div>
       </div>
 
+      {/* Brain Dump */}
       {view === 'brain-dump' && (
-        <div className="px-4 py-5 space-y-4">
-          <div className="bg-gray-900/60 p-4 rounded border border-gray-800/50 pixel-card">
-            <div className="relative">
-              <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" className="w-full bg-[#030712] px-4 py-3 pr-14 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={3} />
-              <button onClick={startDictation} className={`absolute right-3 bottom-3 p-2.5 rounded pixel-shadow ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-800 text-[#6A7282]'}`}><Mic size={20} /></button>
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
+            <div style={{ position: 'relative' }}>
+              <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" rows={3} style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', paddingRight: '56px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}`, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+              <button onClick={startDictation} className="pixel-shadow" style={{ position: 'absolute', right: '12px', bottom: '12px', padding: '10px', borderRadius: '4px', backgroundColor: isListening ? '#ef4444' : COLORS.card, border: 'none', cursor: 'pointer' }}><Mic size={20} color={isListening ? 'white' : COLORS.textMuted} /></button>
             </div>
-            <button onClick={addBrainDump} disabled={!newDump.trim()} className="mt-3 w-full bg-fuchsia-500 text-white py-3.5 rounded font-medium disabled:opacity-40 text-base pixel-shadow">Capture Thought</button>
+            <button onClick={addBrainDump} disabled={!newDump.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: 'white', padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', border: 'none', opacity: !newDump.trim() ? 0.4 : 1, cursor: !newDump.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
           </div>
           {brainDumps.length === 0 ? (
             <EmptyState icon={PixelScroll} description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
           ) : (
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {brainDumps.map((dump) => (
-                <div key={dump.id} className="bg-gray-900/60 p-4 rounded border border-gray-800/50 pixel-card">
-                  <p className="text-[#E5E7EB] mb-3 text-base">{dump.text}</p>
-                  <div className="flex gap-2">
-                    <button onClick={() => convertToTask(dump)} className="flex-1 bg-fuchsia-500/20 text-fuchsia-300 py-2.5 rounded font-medium pixel-shadow">Turn into Quest</button>
-                    <button onClick={() => deleteDump(dump.id)} className="px-4 bg-gray-800 text-[#6A7282] rounded pixel-shadow"><Trash2 size={18} /></button>
+                <div key={dump.id} className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
+                  <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px', margin: '0 0 12px 0' }}>{dump.text}</p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => convertToTask(dump)} className="pixel-shadow" style={{ flex: 1, backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
+                    <button onClick={() => deleteDump(dump.id)} className="pixel-shadow" style={{ padding: '10px 16px', backgroundColor: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: '4px', cursor: 'pointer' }}><Trash2 size={18} color={COLORS.textMuted} /></button>
                   </div>
                 </div>
               ))}
@@ -585,26 +622,27 @@ const SideQuests = () => {
         </div>
       )}
 
+      {/* Quests */}
       {view === 'tasks' && (
-        <div className="px-4 py-5 space-y-6">
-          <div ref={urgentSectionRef} className={`transition-all rounded p-2 -m-2 ${dropTarget === 'urgent' ? 'bg-orange-500/20 ring-2 ring-orange-500/50' : ''}`}>
-            <SectionHeader title="Urgent" count={urgentTasks.length} color="#f97316" />
-            {urgentTasks.length === 0 ? <p className="text-[#6A7282] py-4 text-center text-sm">{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div className="space-y-2">{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div ref={urgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'urgent' ? `${COLORS.urgent}33` : 'transparent', boxShadow: dropTarget === 'urgent' ? `0 0 0 2px ${COLORS.urgent}80` : 'none' }}>
+            <SectionHeader title="Urgent" count={urgentTasks.length} color={COLORS.urgent} />
+            {urgentTasks.length === 0 ? <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
-          <div ref={nonUrgentSectionRef} className={`transition-all rounded p-2 -m-2 ${dropTarget === 'non-urgent' ? 'bg-fuchsia-500/20 ring-2 ring-fuchsia-500/50' : ''}`}>
-            <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="#d946ef" />
-            {nonUrgentTasks.length === 0 ? (dropTarget === 'non-urgent' ? <p className="text-[#6A7282] py-4 text-center text-sm">Drop here!</p> : <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />) : <div className="space-y-2">{nonUrgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
+          <div ref={nonUrgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'non-urgent' ? `${COLORS.secondary}33` : 'transparent', boxShadow: dropTarget === 'non-urgent' ? `0 0 0 2px ${COLORS.secondary}80` : 'none' }}>
+            <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color={COLORS.secondary} />
+            {nonUrgentTasks.length === 0 ? (dropTarget === 'non-urgent' ? <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>Drop here!</p> : <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />) : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{nonUrgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
           {completedTasks.length > 0 && (
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <SectionHeader title="Completed" count={completedTasks.length} color="#34d399" />
-                <button onClick={clearCompleted} className="text-sm text-[#6A7282]">Clear</button>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <SectionHeader title="Completed" count={completedTasks.length} color={COLORS.success} />
+                <button onClick={clearCompleted} style={{ fontSize: '14px', color: COLORS.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>
               </div>
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {completedTasks.slice(0, 5).map(task => (
-                  <div key={task.id} onClick={() => openTaskDetail(task)} className="bg-gray-900/40 p-4 rounded border border-gray-800/30 opacity-60">
-                    <div className="flex items-center gap-3"><CheckSquare size={20} className="text-emerald-500" /><span className="line-through text-[#6A7282]">{task.title}</span></div>
+                  <div key={task.id} onClick={() => openTaskDetail(task)} style={{ backgroundColor: COLORS.cardHover, padding: '16px', borderRadius: '4px', border: `1px solid ${COLORS.borderLight}`, opacity: 0.6, cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><CheckSquare size={20} color={COLORS.success} /><span style={{ textDecoration: 'line-through', color: COLORS.textMuted }}>{task.title}</span></div>
                   </div>
                 ))}
               </div>
@@ -613,8 +651,9 @@ const SideQuests = () => {
         </div>
       )}
 
+      {/* FAB */}
       {view === 'tasks' && !showTaskForm && (
-        <button onClick={() => openTaskForm()} className="fixed bottom-6 right-6 bg-fuchsia-500 text-white p-4 rounded-full pixel-shadow-strong">
+        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: COLORS.primary, color: 'white', padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
           <Plus size={26} strokeWidth={2.5} />
         </button>
       )}
@@ -624,7 +663,7 @@ const SideQuests = () => {
       <style>{`
         .font-pixel-title { font-family: 'Pixelify Sans', monospace; font-weight: 400; }
         .font-pixel { font-family: 'Dogica Pixel', monospace; font-weight: 400; }
-        .pixel-card { box-shadow: 4px 4px 0 0 #0f172a; }
+        .pixel-card { box-shadow: 4px 4px 0 0 ${COLORS.shadow}; }
         .pixel-shadow { box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3); }
         .pixel-shadow-strong { box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.4); }
         .pixel-dot { box-shadow: 1px 0 0 0 white, 0 1px 0 0 white, 1px 1px 0 0 white; }
