@@ -2,27 +2,32 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, CheckSquare, Square, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, GripVertical } from 'lucide-react';
 
 // ============================================
-// CORAL + SKY - COLOR SYSTEM
+// GAME BOY DREAMS - COLOR SYSTEM
 // ============================================
 // 
-// PRIMARY (Coral #FB7185) - Main actions & navigation
+// COLOR AUDIT & USAGE:
+// 
+// PRIMARY (Teal #2DD4BF) - Main actions & navigation
 //   → Active tab indicator + text
 //   → Primary CTAs: "Capture Thought", "Save Quest", FAB
 //   → Progress ring fill
 //   → Input focus borders
 //   → Badge counts
 //
-// SECONDARY (Sky #7DD3FC) - Accents & personality
+// SECONDARY (Coral #FB7185) - Accents & personality
 //   → Non-Urgent section bullet
 //   → "Turn into Quest" button
+//   → Deadlines
 //   → "Marinating" tag
+//   → Sword blade accent
 //
 // URGENT (Amber #FBBF24) - Warnings & priority
 //   → Urgent section bullet
 //   → Urgent priority button (selected)
 //   → High energy indicator
+//   → Sword handle (gold)
 //
-// SUCCESS (Green #86EFAC) - Completion & positive
+// SUCCESS (Green #4ADE80) - Completion & positive
 //   → Completed section bullet
 //   → Checkmarks (checked state)
 //   → Low energy indicator
@@ -31,10 +36,10 @@ import { Plus, CheckSquare, Square, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Tro
 
 const COLORS = {
   // Core palette
-  primary: '#FB7185',      // Coral - main actions
-  secondary: '#7DD3FC',    // Sky blue - accents
+  primary: '#2DD4BF',      // Teal - main actions
+  secondary: '#FB7185',    // Coral - accents, personality
   urgent: '#FBBF24',       // Amber - warnings, priority
-  success: '#86EFAC',      // Soft green - completion
+  success: '#4ADE80',      // Green - completion, positive
   
   // Backgrounds
   bg: '#0C1222',           // Navy black
@@ -42,8 +47,8 @@ const COLORS = {
   cardHover: '#1a2a42',    // Hover state
   
   // Borders
-  border: 'rgba(251, 113, 133, 0.15)',    // Subtle coral tint
-  borderLight: 'rgba(251, 113, 133, 0.08)',
+  border: 'rgba(45, 212, 191, 0.15)',      // Subtle teal tint
+  borderLight: 'rgba(45, 212, 191, 0.08)',
   
   // Text
   text: '#F1F5F9',         // Primary text
@@ -54,7 +59,7 @@ const COLORS = {
 };
 
 // ============================================
-// PIXEL SWORD - Coral toned
+// PIXEL SWORD - Coral/Pink toned
 // ============================================
 
 const PixelSword = ({ size = 32 }) => (
@@ -130,12 +135,12 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   );
 };
 
-// Energy: green=easy, amber=medium, coral=hard
+// Energy uses semantic colors: green=easy, amber=medium, coral=hard
 const EnergyIndicator = ({ level }) => {
   const config = {
     low: { color: COLORS.success, label: 'Low' },
     medium: { color: COLORS.urgent, label: 'Med' },
-    high: { color: COLORS.primary, label: 'High' }
+    high: { color: COLORS.secondary, label: 'High' }
   };
   return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
 };
@@ -193,7 +198,7 @@ const LoginScreen = ({ onLogin }) => {
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ marginBottom: '32px', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><PixelSword size={48} /></div>
-        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px', textTransform: 'uppercase' }}>Side Quests</h1>
+        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>Side Quests</h1>
         <p style={{ color: COLORS.textMuted, fontSize: '14px' }}>Enter PIN to continue</p>
       </div>
       <div style={{ width: '100%', maxWidth: '280px' }}>
@@ -279,7 +284,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
             {[
               { level: 'low', color: COLORS.success },
               { level: 'medium', color: COLORS.urgent },
-              { level: 'high', color: COLORS.primary }
+              { level: 'high', color: COLORS.secondary }
             ].map(({ level, color }) => (
               <button key={level} type="button" onClick={() => setEnergy(level)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', textTransform: 'capitalize', border: energy === level ? 'none' : `1px solid ${COLORS.border}`, backgroundColor: energy === level ? color : COLORS.card, color: energy === level ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>{level}</button>
             ))}
@@ -295,7 +300,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* Save Button - Fixed at bottom */}
       <div style={{ padding: '16px', borderTop: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bg }}>
         <button onClick={handleSave} disabled={!title.trim()} className="pixel-shadow" style={{ width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '4px', fontWeight: 600, border: 'none', opacity: !title.trim() ? 0.4 : 1, cursor: !title.trim() ? 'default' : 'pointer' }}>
           Save Quest
@@ -519,7 +524,7 @@ const SideQuests = () => {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                   <EnergyIndicator level={task.energy} />
-                  {task.deadline && <span style={{ fontSize: '12px', color: COLORS.primary }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                  {task.deadline && <span style={{ fontSize: '12px', color: COLORS.secondary }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
                   {!task.urgent && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>✨ Marinating</span>}
                 </div>
               </div>
@@ -557,8 +562,8 @@ const SideQuests = () => {
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.urgent ? COLORS.urgent : COLORS.secondary, backgroundColor: currentTask.urgent ? `${COLORS.urgent}26` : `${COLORS.secondary}26`, border: `1px solid ${currentTask.urgent ? `${COLORS.urgent}4d` : `${COLORS.secondary}4d`}` }}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.primary : COLORS.urgent, backgroundColor: currentTask.energy === 'low' ? `${COLORS.success}26` : currentTask.energy === 'high' ? `${COLORS.primary}26` : `${COLORS.urgent}26`, border: `1px solid ${currentTask.energy === 'low' ? `${COLORS.success}4d` : currentTask.energy === 'high' ? `${COLORS.primary}4d` : `${COLORS.urgent}4d`}` }}>{currentTask.energy} energy</span>
-              {currentTask.deadline && <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: COLORS.primary, backgroundColor: `${COLORS.primary}26`, border: `1px solid ${COLORS.primary}4d` }}>{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent, backgroundColor: currentTask.energy === 'low' ? `${COLORS.success}26` : currentTask.energy === 'high' ? `${COLORS.secondary}26` : `${COLORS.urgent}26`, border: `1px solid ${currentTask.energy === 'low' ? `${COLORS.success}4d` : currentTask.energy === 'high' ? `${COLORS.secondary}4d` : `${COLORS.urgent}4d`}` }}>{currentTask.energy} energy</span>
+              {currentTask.deadline && <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: COLORS.secondary, backgroundColor: `${COLORS.secondary}26`, border: `1px solid ${COLORS.secondary}4d` }}>{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
             </div>
             {currentTask.notes && <div style={{ paddingTop: '16px', borderTop: `1px solid ${COLORS.border}` }}><p style={{ color: COLORS.textMuted, whiteSpace: 'pre-wrap', margin: 0 }}>{currentTask.notes}</p></div>}
           </div>
@@ -612,16 +617,16 @@ const SideQuests = () => {
         <div style={{ padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <PixelSword size={32} />
-            <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0, textTransform: 'uppercase' }}>Side Quests</h1>
+            <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Side Quests</h1>
           </div>
         </div>
-        {/* Tabs - 10px */}
+        {/* Tabs */}
         <div style={{ display: 'flex' }}>
-          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '10px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{brainDumps.length}</span>}
+          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{brainDumps.length}</span>}
           </button>
-          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '10px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
+          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
           </button>
         </div>
       </div>
@@ -654,7 +659,7 @@ const SideQuests = () => {
         </div>
       )}
 
-      {/* Quests */}
+      {/* Quests - MORE PADDING between sections */}
       {view === 'tasks' && (
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
           <div ref={urgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'urgent' ? `${COLORS.urgent}26` : 'transparent', boxShadow: dropTarget === 'urgent' ? `0 0 0 2px ${COLORS.urgent}80` : 'none' }}>
