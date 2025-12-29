@@ -198,7 +198,7 @@ const LoginScreen = ({ onLogin }) => {
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ marginBottom: '32px', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><PixelSword size={48} /></div>
-        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>Side Quests</h1>
+        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>SIDE QUESTS</h1>
         <p style={{ color: COLORS.textMuted, fontSize: '14px' }}>Enter PIN to continue</p>
       </div>
       <div style={{ width: '100%', maxWidth: '280px' }}>
@@ -617,7 +617,7 @@ const SideQuests = () => {
         <div style={{ padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <PixelSword size={32} />
-            <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Side Quests</h1>
+            <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>SIDE QUESTS</h1>
           </div>
         </div>
         {/* Tabs */}
@@ -647,7 +647,7 @@ const SideQuests = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {brainDumps.map((dump) => (
                 <div key={dump.id} className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
-                  <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px', margin: '0 0 12px 0' }}>{dump.text}</p>
+                  <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '10px', margin: '0 0 12px 0' }}>{dump.text}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => convertToTask(dump)} className="pixel-shadow" style={{ flex: 1, backgroundColor: `${COLORS.secondary}26`, color: COLORS.secondary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
                     <button onClick={() => deleteDump(dump.id)} className="pixel-shadow" style={{ padding: '10px 16px', backgroundColor: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: '4px', cursor: 'pointer' }}><Trash2 size={18} color={COLORS.textMuted} /></button>
@@ -664,7 +664,7 @@ const SideQuests = () => {
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
           <div ref={urgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'urgent' ? `${COLORS.urgent}26` : 'transparent', boxShadow: dropTarget === 'urgent' ? `0 0 0 2px ${COLORS.urgent}80` : 'none' }}>
             <SectionHeader title="Urgent" count={urgentTasks.length} color={COLORS.urgent} />
-            {urgentTasks.length === 0 ? <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
+            {urgentTasks.length === 0 ? <p style={{ color: COLORS.textMuted, padding: '10px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
           <div ref={nonUrgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'non-urgent' ? `${COLORS.secondary}26` : 'transparent', boxShadow: dropTarget === 'non-urgent' ? `0 0 0 2px ${COLORS.secondary}80` : 'none' }}>
             <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color={COLORS.secondary} />
