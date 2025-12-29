@@ -37,10 +37,10 @@ const LoginScreen = ({ onLogin }) => {
         <div className="flex justify-center mb-4">
           <PixelSword size={48} />
         </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 via-pink-400 to-rose-400 bg-clip-text text-transparent mb-2">
+        <h1 className="text-3xl font-bold text-fuchsia-300 mb-2 font-pixel-title uppercase tracking-wide">
           Side Quests
         </h1>
-        <p className="text-gray-500">Enter PIN to continue</p>
+        <p className="text-gray-500 text-sm">Enter PIN to continue</p>
       </div>
       
       <div className="w-full max-w-xs">
@@ -74,24 +74,6 @@ const LoginScreen = ({ onLogin }) => {
           75% { transform: translateX(8px); }
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
-        .pixel-bg {
-          background-image: 
-            linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-        .pixel-input {
-          border: 2px solid #374151;
-          border-radius: 8px;
-        }
-        .pixel-input:focus {
-          border-color: #e879f9;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(232, 121, 249, 0.2);
-        }
-        .pixel-shadow {
-          box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3);
-        }
       `}</style>
     </div>
   );
@@ -128,21 +110,13 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
 // Energy indicator - simplified
 const EnergyIndicator = ({ level, compact = false }) => {
   const config = {
-    low: { color: 'text-emerald-400', bg: 'bg-emerald-400/15', label: 'Low' },
-    medium: { color: 'text-amber-400', bg: 'bg-amber-400/15', label: 'Med' },
-    high: { color: 'text-orange-400', bg: 'bg-orange-400/15', label: 'High' }
+    low: { color: 'text-emerald-400', label: 'Low' },
+    medium: { color: 'text-amber-400', label: 'Med' },
+    high: { color: 'text-orange-400', label: 'High' }
   };
-  const { color, bg, label } = config[level];
+  const { color, label } = config[level];
   
-  if (compact) {
-    return <span className={`text-xs ${color}`}>{label}</span>;
-  }
-  
-  return (
-    <span className={`text-xs px-2 py-1 rounded-md ${color} ${bg} pixel-badge`}>
-      {label} energy
-    </span>
-  );
+  return <span className={`text-xs ${color}`}>{label}</span>;
 };
 
 // Empty state
@@ -159,11 +133,11 @@ const EmptyState = ({ icon: Icon, title, description, action, actionLabel }) => 
   </div>
 );
 
-// Section header with pixel dot
+// Section header with pixel font
 const SectionHeader = ({ title, count, color }) => (
   <div className="flex items-center gap-2 mb-3">
-    <div className={`w-2 h-2 ${color} pixel-dot`} />
-    <h2 className="text-lg font-semibold text-gray-200">{title}</h2>
+    <div className={`w-2 h-2 ${color}`} />
+    <h2 className="text-sm text-gray-200 font-pixel uppercase tracking-wider">{title}</h2>
     <span className="text-sm text-gray-500">({count})</span>
   </div>
 );
@@ -516,7 +490,7 @@ const SideQuests = () => {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <EnergyIndicator level={task.energy} compact />
+                  <EnergyIndicator level={task.energy} />
                   
                   {task.deadline && (
                     <span className="text-xs text-pink-400">
@@ -545,12 +519,12 @@ const SideQuests = () => {
 
     return (
       <div className="min-h-screen bg-gray-950 pixel-bg">
-        <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md pixel-border-b">
+        <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
           <div className="px-4 py-3 flex items-center gap-3">
             <button onClick={closeTaskDetail} className="p-2 -ml-2">
               <ArrowLeft size={22} className="text-gray-400" />
             </button>
-            <h2 className="text-lg font-medium text-gray-200 flex-1">Quest Details</h2>
+            <h2 className="text-sm font-pixel uppercase tracking-wider text-gray-200 flex-1">Quest Details</h2>
             <button onClick={() => openTaskForm(currentTask)} className="p-2">
               <Edit2 size={20} className="text-gray-400" />
             </button>
@@ -576,16 +550,18 @@ const SideQuests = () => {
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              <span className={`text-sm px-3 py-1.5 pixel-badge ${
+              <span className={`text-xs px-3 py-1.5 pixel-badge font-pixel uppercase ${
                 currentTask.urgent 
                   ? 'text-orange-300 bg-orange-500/15' 
                   : 'text-fuchsia-300 bg-fuchsia-500/15'
               }`}>
                 {currentTask.urgent ? 'Urgent' : 'Non-Urgent'}
               </span>
-              <EnergyIndicator level={currentTask.energy} />
+              <span className="text-xs px-3 py-1.5 pixel-badge text-amber-400 bg-amber-500/15">
+                {currentTask.energy} energy
+              </span>
               {currentTask.deadline && (
-                <span className="text-sm px-3 py-1.5 pixel-badge text-pink-300 bg-pink-500/15">
+                <span className="text-xs px-3 py-1.5 pixel-badge text-pink-300 bg-pink-500/15">
                   {new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </span>
               )}
@@ -600,7 +576,7 @@ const SideQuests = () => {
 
           <div className="bg-gray-900/60 p-5 pixel-card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-200">Steps</h3>
+              <h3 className="font-pixel text-sm uppercase tracking-wider text-gray-200">Steps</h3>
               {currentTask.subtasks?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <ProgressRing progress={subtaskProgress} size={24} strokeWidth={2.5} />
@@ -647,37 +623,6 @@ const SideQuests = () => {
         {showTaskForm && (
           <TaskForm task={editingTask} onSave={addOrUpdateTask} onCancel={closeTaskForm} />
         )}
-
-        <style>{`
-          .pixel-bg {
-            background-image: 
-              linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
-          }
-          .pixel-border-b {
-            border-bottom: 2px solid #1f2937;
-            box-shadow: 0 2px 0 0 #0f172a;
-          }
-          .pixel-card {
-            border: 2px solid #1f2937;
-            border-radius: 12px;
-            box-shadow: 4px 4px 0 0 #0f172a;
-          }
-          .pixel-shadow {
-            box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3);
-          }
-          .pixel-badge {
-            border: 1px solid #374151;
-            border-radius: 6px;
-          }
-          @keyframes celebrate {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          .animate-celebrate { animation: celebrate 0.5s ease-out; }
-        `}</style>
       </div>
     );
   }
@@ -702,11 +647,11 @@ const SideQuests = () => {
       )}
 
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md pixel-border-b">
+      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
         <div className="px-5 py-4">
           <div className="flex items-center gap-3">
             <PixelSword size={32} />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-fuchsia-400 via-pink-400 to-rose-400 bg-clip-text text-transparent">
+            <h1 className="text-[32px] font-pixel-title uppercase text-fuchsia-300 tracking-wide">
               Side Quests
             </h1>
           </div>
@@ -715,7 +660,7 @@ const SideQuests = () => {
         <div className="flex">
           <button
             onClick={() => setView('brain-dump')}
-            className={`flex-1 py-3 text-base font-medium border-b-2 ${
+            className={`flex-1 py-3 text-xs font-pixel uppercase tracking-wider border-b-2 ${
               view === 'brain-dump' 
                 ? 'text-fuchsia-400 border-fuchsia-400' 
                 : 'text-gray-500 border-transparent'
@@ -730,7 +675,7 @@ const SideQuests = () => {
           </button>
           <button
             onClick={() => setView('tasks')}
-            className={`flex-1 py-3 text-base font-medium border-b-2 ${
+            className={`flex-1 py-3 text-xs font-pixel uppercase tracking-wider border-b-2 ${
               view === 'tasks' 
                 ? 'text-pink-400 border-pink-400' 
                 : 'text-gray-500 border-transparent'
@@ -823,7 +768,7 @@ const SideQuests = () => {
           >
             <SectionHeader title="Urgent" count={urgentTasks.length} color="bg-orange-500" />
             {urgentTasks.length === 0 ? (
-              <p className="text-gray-600 py-4 text-center">
+              <p className="text-gray-600 py-4 text-center text-sm">
                 {dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}
               </p>
             ) : (
@@ -845,7 +790,7 @@ const SideQuests = () => {
             <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="bg-fuchsia-500" />
             {nonUrgentTasks.length === 0 ? (
               dropTarget === 'non-urgent' ? (
-                <p className="text-gray-600 py-4 text-center">Drop here!</p>
+                <p className="text-gray-600 py-4 text-center text-sm">Drop here!</p>
               ) : (
                 <EmptyState
                   icon={Sparkles}
@@ -907,15 +852,17 @@ const SideQuests = () => {
       )}
 
       <style>{`
+        .font-pixel-title {
+          font-family: 'Pixelify Sans', monospace;
+        }
+        .font-pixel {
+          font-family: 'Dogica Pixel', monospace;
+        }
         .pixel-bg {
           background-image: 
             linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
           background-size: 20px 20px;
-        }
-        .pixel-border-b {
-          border-bottom: 2px solid #1f2937;
-          box-shadow: 0 2px 0 0 #0f172a;
         }
         .pixel-card {
           border: 2px solid #1f2937;
@@ -940,9 +887,6 @@ const SideQuests = () => {
         .pixel-badge {
           border: 1px solid #374151;
           border-radius: 6px;
-        }
-        .pixel-dot {
-          box-shadow: 1px 0 0 0 currentColor, 0 1px 0 0 currentColor, 1px 1px 0 0 currentColor;
         }
         @keyframes celebrate {
           0% { transform: scale(0.5); opacity: 0; }
@@ -982,11 +926,11 @@ const TaskForm = ({ task, onSave, onCancel }) => {
       ref={formRef}
       className="fixed inset-0 bg-gray-950 z-50 overflow-y-auto pixel-bg"
     >
-      <div className="sticky top-0 bg-gray-950/95 backdrop-blur-md pixel-border-b px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 bg-gray-950/95 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
         <button onClick={onCancel} className="p-2 -ml-2">
           <X size={22} className="text-gray-400" />
         </button>
-        <h2 className="text-lg font-medium text-gray-200 flex-1">
+        <h2 className="text-sm font-pixel uppercase tracking-wider text-gray-200 flex-1">
           {task?.id ? 'Edit Quest' : 'New Quest'}
         </h2>
         <button
@@ -1003,7 +947,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
 
       <div className="p-4 space-y-5">
         <div>
-          <label className="block text-gray-400 mb-2">What needs doing?</label>
+          <label className="block text-gray-400 mb-2 text-sm">What needs doing?</label>
           <input
             type="text"
             value={title}
@@ -1014,7 +958,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2">Priority</label>
+          <label className="block text-gray-400 mb-2 text-sm">Priority</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -1038,7 +982,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2">Energy needed</label>
+          <label className="block text-gray-400 mb-2 text-sm">Energy needed</label>
           <div className="grid grid-cols-3 gap-2">
             {['low', 'medium', 'high'].map((level) => (
               <button
@@ -1056,7 +1000,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2">Deadline (optional)</label>
+          <label className="block text-gray-400 mb-2 text-sm">Deadline (optional)</label>
           <input
             type="date"
             value={deadline}
@@ -1066,7 +1010,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2">Notes (optional)</label>
+          <label className="block text-gray-400 mb-2 text-sm">Notes (optional)</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -1078,15 +1022,14 @@ const TaskForm = ({ task, onSave, onCancel }) => {
       </div>
 
       <style>{`
+        .font-pixel {
+          font-family: 'Dogica Pixel', monospace;
+        }
         .pixel-bg {
           background-image: 
             linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
           background-size: 20px 20px;
-        }
-        .pixel-border-b {
-          border-bottom: 2px solid #1f2937;
-          box-shadow: 0 2px 0 0 #0f172a;
         }
         .pixel-shadow {
           box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3);
