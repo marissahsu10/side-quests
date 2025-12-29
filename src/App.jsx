@@ -2,47 +2,92 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, CheckSquare, Square, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, GripVertical } from 'lucide-react';
 
 // ============================================
-// DESIGN TOKENS - Single source of truth
+// GAME BOY DREAMS - COLOR SYSTEM
 // ============================================
+// 
+// COLOR AUDIT & USAGE:
+// 
+// PRIMARY (Teal #2DD4BF) - Main actions & navigation
+//   → Active tab indicator + text
+//   → Primary CTAs: "Capture Thought", "Save Quest", FAB
+//   → Progress ring fill
+//   → Input focus borders
+//   → Badge counts
+//
+// SECONDARY (Coral #FB7185) - Accents & personality
+//   → Non-Urgent section bullet
+//   → "Turn into Quest" button
+//   → Deadlines
+//   → "Marinating" tag
+//   → Sword blade accent
+//
+// URGENT (Amber #FBBF24) - Warnings & priority
+//   → Urgent section bullet
+//   → Urgent priority button (selected)
+//   → High energy indicator
+//   → Sword handle (gold)
+//
+// SUCCESS (Green #4ADE80) - Completion & positive
+//   → Completed section bullet
+//   → Checkmarks (checked state)
+//   → Low energy indicator
+//
+// ============================================
+
 const COLORS = {
-  bg: '#030712',
-  card: 'rgba(17, 24, 39, 0.6)',      // gray-900/60
-  cardHover: 'rgba(17, 24, 39, 0.4)', // gray-900/40
-  border: 'rgba(31, 41, 55, 0.5)',    // gray-800/50
-  borderLight: 'rgba(31, 41, 55, 0.3)',
-  text: '#E5E7EB',
-  textMuted: '#6A7282',
-  primary: '#F6339A',      // hot pink - buttons, active tab, Brain Dump
-  secondary: '#4C6FFF',    // blue - Non-Urgent bullet, energy selector
-  urgent: '#f97316',       // orange - Urgent section
-  success: '#34d399',      // emerald - Completed, checkmarks
-  deadline: '#F6339A',     // pink for deadlines
-  shadow: '#0f172a',
+  // Core palette
+  primary: '#2DD4BF',      // Teal - main actions
+  secondary: '#FB7185',    // Coral - accents, personality
+  urgent: '#FBBF24',       // Amber - warnings, priority
+  success: '#4ADE80',      // Green - completion, positive
+  
+  // Backgrounds
+  bg: '#0C1222',           // Navy black
+  card: '#162032',         // Card background
+  cardHover: '#1a2a42',    // Hover state
+  
+  // Borders
+  border: 'rgba(45, 212, 191, 0.15)',      // Subtle teal tint
+  borderLight: 'rgba(45, 212, 191, 0.08)',
+  
+  // Text
+  text: '#F1F5F9',         // Primary text
+  textMuted: '#94A3B8',    // Secondary text
+  
+  // Shadows
+  shadow: '#060B14',
 };
 
 // ============================================
-// PIXEL ICONS
+// PIXEL SWORD - Coral/Pink toned
 // ============================================
 
 const PixelSword = ({ size = 32 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
-    <rect x="7" y="0" width="2" height="10" fill="#f0abfc"/>
-    <rect x="6" y="1" width="1" height="8" fill="#e879f9"/>
-    <rect x="9" y="1" width="1" height="8" fill="#f5d0fe"/>
-    <rect x="4" y="10" width="8" height="2" fill="#fbbf24"/>
-    <rect x="7" y="12" width="2" height="3" fill={COLORS.primary}/>
-    <rect x="6" y="15" width="4" height="1" fill="#f0abfc"/>
+    {/* Blade - coral/pink tones */}
+    <rect x="7" y="0" width="2" height="10" fill="#FDA4AF"/>
+    <rect x="6" y="1" width="1" height="8" fill="#FB7185"/>
+    <rect x="9" y="1" width="1" height="8" fill="#FECDD3"/>
+    {/* Guard - gold */}
+    <rect x="4" y="10" width="8" height="2" fill={COLORS.urgent}/>
+    {/* Handle - coral */}
+    <rect x="7" y="12" width="2" height="3" fill="#FB7185"/>
+    <rect x="6" y="15" width="4" height="1" fill="#FDA4AF"/>
   </svg>
 );
+
+// ============================================
+// PIXEL ICONS FOR EMPTY STATES
+// ============================================
 
 const PixelScroll = ({ size = 48 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
     <rect x="3" y="1" width="10" height="2" fill={COLORS.textMuted}/>
     <rect x="2" y="2" width="1" height="12" fill={COLORS.textMuted}/>
-    <rect x="13" y="2" width="1" height="12" fill="#4a5568"/>
-    <rect x="3" y="3" width="10" height="10" fill="#374151"/>
-    <rect x="3" y="13" width="10" height="2" fill="#4a5568"/>
-    <rect x="5" y="5" width="6" height="1" fill={COLORS.textMuted}/>
+    <rect x="13" y="2" width="1" height="12" fill="#64748b"/>
+    <rect x="3" y="3" width="10" height="10" fill="#334155"/>
+    <rect x="3" y="13" width="10" height="2" fill="#64748b"/>
+    <rect x="5" y="5" width="6" height="1" fill={COLORS.primary}/>
     <rect x="5" y="7" width="4" height="1" fill={COLORS.textMuted}/>
     <rect x="5" y="9" width="5" height="1" fill={COLORS.textMuted}/>
   </svg>
@@ -58,7 +103,7 @@ const PixelSparkle = ({ size = 48 }) => (
     <rect x="11" y="3" width="2" height="2" fill={COLORS.secondary}/>
     <rect x="3" y="11" width="2" height="2" fill={COLORS.secondary}/>
     <rect x="11" y="11" width="2" height="2" fill={COLORS.secondary}/>
-    <rect x="6" y="6" width="4" height="4" fill={COLORS.secondary}/>
+    <rect x="6" y="6" width="4" height="4" fill={COLORS.urgent}/>
   </svg>
 );
 
@@ -71,7 +116,7 @@ const CelebrationOverlay = ({ show, message }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
       <div className="flex flex-col items-center animate-celebrate">
-        <Trophy size={56} style={{ color: '#fbbf24', filter: 'drop-shadow(0 0 10px #fbbf24)' }} />
+        <Trophy size={56} style={{ color: COLORS.urgent, filter: `drop-shadow(0 0 10px ${COLORS.urgent})` }} />
         <span className="mt-2 text-lg font-bold text-white drop-shadow-lg">{message}</span>
       </div>
     </div>
@@ -90,11 +135,12 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   );
 };
 
+// Energy uses semantic colors: green=easy, amber=medium, coral=hard
 const EnergyIndicator = ({ level }) => {
   const config = {
     low: { color: COLORS.success, label: 'Low' },
-    medium: { color: '#fbbf24', label: 'Med' },
-    high: { color: COLORS.urgent, label: 'High' }
+    medium: { color: COLORS.urgent, label: 'Med' },
+    high: { color: COLORS.secondary, label: 'High' }
   };
   return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
 };
@@ -112,7 +158,7 @@ const EmptyState = ({ icon: Icon, description, action, actionLabel }) => (
     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><Icon size={48} /></div>
     <p style={{ color: COLORS.textMuted, marginBottom: '24px', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', fontSize: '14px' }}>{description}</p>
     {action && (
-      <button onClick={action} className="pixel-shadow" style={{ padding: '10px 24px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
+      <button onClick={action} className="pixel-shadow" style={{ padding: '10px 24px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
         {actionLabel}
       </button>
     )}
@@ -177,8 +223,8 @@ const LoginScreen = ({ onLogin }) => {
           disabled={pin.length < 4}
           className="pixel-shadow"
           style={{ 
-            marginTop: '16px', width: '100%', backgroundColor: COLORS.primary, color: 'white',
-            padding: '16px', borderRadius: '4px', fontWeight: 500, border: 'none',
+            marginTop: '16px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg,
+            padding: '16px', borderRadius: '4px', fontWeight: 600, border: 'none',
             opacity: pin.length < 4 ? 0.4 : 1, cursor: pin.length < 4 ? 'default' : 'pointer'
           }}
         >
@@ -211,23 +257,10 @@ const TaskForm = ({ task, onSave, onCancel }) => {
     border: `1px solid ${COLORS.border}`, outline: 'none', boxSizing: 'border-box'
   };
 
-  const buttonStyle = (isActive) => ({
-    padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px',
-    border: isActive ? 'none' : `1px solid ${COLORS.border}`,
-    backgroundColor: isActive ? COLORS.primary : COLORS.card,
-    color: isActive ? 'white' : COLORS.textMuted,
-    cursor: 'pointer'
-  });
-
-  const energyButtonStyle = (isActive) => ({
-    ...buttonStyle(isActive),
-    backgroundColor: isActive ? COLORS.secondary : COLORS.card,
-  });
-
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: COLORS.bg, zIndex: 50, display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}`, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ backgroundColor: COLORS.bg, borderBottom: `1px solid ${COLORS.border}`, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button onClick={onCancel} style={{ padding: '8px', marginLeft: '-8px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={22} color={COLORS.textMuted} /></button>
         <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', flex: 1 }}>{task?.id ? 'Edit Quest' : 'New Quest'}</h2>
       </div>
@@ -241,15 +274,19 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         <div>
           <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Priority</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button type="button" onClick={() => setUrgent(true)} className="pixel-shadow" style={{ ...buttonStyle(urgent), backgroundColor: urgent ? COLORS.urgent : COLORS.card }}>Urgent</button>
-            <button type="button" onClick={() => setUrgent(false)} className="pixel-shadow" style={buttonStyle(!urgent)}>Someday</button>
+            <button type="button" onClick={() => setUrgent(true)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', border: urgent ? 'none' : `1px solid ${COLORS.border}`, backgroundColor: urgent ? COLORS.urgent : COLORS.card, color: urgent ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>Urgent</button>
+            <button type="button" onClick={() => setUrgent(false)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', border: !urgent ? 'none' : `1px solid ${COLORS.border}`, backgroundColor: !urgent ? COLORS.primary : COLORS.card, color: !urgent ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>Someday</button>
           </div>
         </div>
         <div>
           <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Energy needed</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-            {['low', 'medium', 'high'].map((level) => (
-              <button key={level} type="button" onClick={() => setEnergy(level)} className="pixel-shadow" style={energyButtonStyle(energy === level)}>{level.charAt(0).toUpperCase() + level.slice(1)}</button>
+            {[
+              { level: 'low', color: COLORS.success },
+              { level: 'medium', color: COLORS.urgent },
+              { level: 'high', color: COLORS.secondary }
+            ].map(({ level, color }) => (
+              <button key={level} type="button" onClick={() => setEnergy(level)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', textTransform: 'capitalize', border: energy === level ? 'none' : `1px solid ${COLORS.border}`, backgroundColor: energy === level ? color : COLORS.card, color: energy === level ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>{level}</button>
             ))}
           </div>
         </div>
@@ -263,9 +300,9 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* Save Button - Fixed at bottom */}
       <div style={{ padding: '16px', borderTop: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bg }}>
-        <button onClick={handleSave} disabled={!title.trim()} className="pixel-shadow" style={{ width: '100%', backgroundColor: COLORS.primary, color: 'white', padding: '16px', borderRadius: '4px', fontWeight: 500, border: 'none', opacity: !title.trim() ? 0.4 : 1, cursor: !title.trim() ? 'default' : 'pointer' }}>
+        <button onClick={handleSave} disabled={!title.trim()} className="pixel-shadow" style={{ width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '4px', fontWeight: 600, border: 'none', opacity: !title.trim() ? 0.4 : 1, cursor: !title.trim() ? 'default' : 'pointer' }}>
           Save Quest
         </button>
       </div>
@@ -487,7 +524,7 @@ const SideQuests = () => {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                   <EnergyIndicator level={task.energy} />
-                  {task.deadline && <span style={{ fontSize: '12px', color: COLORS.deadline }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                  {task.deadline && <span style={{ fontSize: '12px', color: COLORS.secondary }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
                   {!task.urgent && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>✨ Marinating</span>}
                 </div>
               </div>
@@ -507,7 +544,7 @@ const SideQuests = () => {
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg }}>
-        <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}` }}>
+        <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: `1px solid ${COLORS.border}` }}>
           <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button onClick={closeTaskDetail} style={{ padding: '8px', marginLeft: '-8px', background: 'none', border: 'none', cursor: 'pointer' }}><ArrowLeft size={22} color={COLORS.textMuted} /></button>
             <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', flex: 1 }}>Quest Details</h2>
@@ -524,9 +561,9 @@ const SideQuests = () => {
               <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0 }}>{currentTask.title}</h1>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.urgent ? '#fdba74' : COLORS.secondary, backgroundColor: currentTask.urgent ? `${COLORS.urgent}26` : `${COLORS.secondary}26`, border: `1px solid ${currentTask.urgent ? `${COLORS.urgent}4d` : `${COLORS.secondary}4d`}` }}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)' }}>{currentTask.energy} energy</span>
-              {currentTask.deadline && <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: COLORS.primary, backgroundColor: `${COLORS.primary}26`, border: `1px solid ${COLORS.primary}4d` }}>{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.urgent ? COLORS.urgent : COLORS.secondary, backgroundColor: currentTask.urgent ? `${COLORS.urgent}26` : `${COLORS.secondary}26`, border: `1px solid ${currentTask.urgent ? `${COLORS.urgent}4d` : `${COLORS.secondary}4d`}` }}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent, backgroundColor: currentTask.energy === 'low' ? `${COLORS.success}26` : currentTask.energy === 'high' ? `${COLORS.secondary}26` : `${COLORS.urgent}26`, border: `1px solid ${currentTask.energy === 'low' ? `${COLORS.success}4d` : currentTask.energy === 'high' ? `${COLORS.secondary}4d` : `${COLORS.urgent}4d`}` }}>{currentTask.energy} energy</span>
+              {currentTask.deadline && <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: COLORS.secondary, backgroundColor: `${COLORS.secondary}26`, border: `1px solid ${COLORS.secondary}4d` }}>{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
             </div>
             {currentTask.notes && <div style={{ paddingTop: '16px', borderTop: `1px solid ${COLORS.border}` }}><p style={{ color: COLORS.textMuted, whiteSpace: 'pre-wrap', margin: 0 }}>{currentTask.notes}</p></div>}
           </div>
@@ -543,7 +580,7 @@ const SideQuests = () => {
             {!currentTask.subtasks?.length ? (
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
                 <p style={{ color: COLORS.textMuted, marginBottom: '16px' }}>Break this into smaller steps</p>
-                <button className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}><Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down</button>
+                <button className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}><Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down</button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -576,20 +613,20 @@ const SideQuests = () => {
       )}
 
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: `${COLORS.bg}f2`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.border}` }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: `1px solid ${COLORS.border}` }}>
         <div style={{ padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <PixelSword size={32} />
             <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Side Quests</h1>
           </div>
         </div>
-        {/* Tabs - 16px */}
+        {/* Tabs */}
         <div style={{ display: 'flex' }}>
-          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary }}>{brainDumps.length}</span>}
+          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{brainDumps.length}</span>}
           </button>
-          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}33`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
+          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
           </button>
         </div>
       </div>
@@ -602,7 +639,7 @@ const SideQuests = () => {
               <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" rows={3} style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', paddingRight: '56px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}`, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
               <button onClick={startDictation} className="pixel-shadow" style={{ position: 'absolute', right: '12px', bottom: '12px', padding: '10px', borderRadius: '4px', backgroundColor: isListening ? '#ef4444' : COLORS.card, border: 'none', cursor: 'pointer' }}><Mic size={20} color={isListening ? 'white' : COLORS.textMuted} /></button>
             </div>
-            <button onClick={addBrainDump} disabled={!newDump.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: 'white', padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', border: 'none', opacity: !newDump.trim() ? 0.4 : 1, cursor: !newDump.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
+            <button onClick={addBrainDump} disabled={!newDump.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '14px', borderRadius: '4px', fontWeight: 600, fontSize: '16px', border: 'none', opacity: !newDump.trim() ? 0.4 : 1, cursor: !newDump.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
           </div>
           {brainDumps.length === 0 ? (
             <EmptyState icon={PixelScroll} description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
@@ -612,7 +649,7 @@ const SideQuests = () => {
                 <div key={dump.id} className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: `1px solid ${COLORS.border}` }}>
                   <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px', margin: '0 0 12px 0' }}>{dump.text}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => convertToTask(dump)} className="pixel-shadow" style={{ flex: 1, backgroundColor: `${COLORS.primary}33`, color: COLORS.primary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
+                    <button onClick={() => convertToTask(dump)} className="pixel-shadow" style={{ flex: 1, backgroundColor: `${COLORS.secondary}26`, color: COLORS.secondary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
                     <button onClick={() => deleteDump(dump.id)} className="pixel-shadow" style={{ padding: '10px 16px', backgroundColor: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: '4px', cursor: 'pointer' }}><Trash2 size={18} color={COLORS.textMuted} /></button>
                   </div>
                 </div>
@@ -622,14 +659,14 @@ const SideQuests = () => {
         </div>
       )}
 
-      {/* Quests */}
+      {/* Quests - MORE PADDING between sections */}
       {view === 'tasks' && (
-        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div ref={urgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'urgent' ? `${COLORS.urgent}33` : 'transparent', boxShadow: dropTarget === 'urgent' ? `0 0 0 2px ${COLORS.urgent}80` : 'none' }}>
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          <div ref={urgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'urgent' ? `${COLORS.urgent}26` : 'transparent', boxShadow: dropTarget === 'urgent' ? `0 0 0 2px ${COLORS.urgent}80` : 'none' }}>
             <SectionHeader title="Urgent" count={urgentTasks.length} color={COLORS.urgent} />
             {urgentTasks.length === 0 ? <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
-          <div ref={nonUrgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'non-urgent' ? `${COLORS.secondary}33` : 'transparent', boxShadow: dropTarget === 'non-urgent' ? `0 0 0 2px ${COLORS.secondary}80` : 'none' }}>
+          <div ref={nonUrgentSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'non-urgent' ? `${COLORS.secondary}26` : 'transparent', boxShadow: dropTarget === 'non-urgent' ? `0 0 0 2px ${COLORS.secondary}80` : 'none' }}>
             <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color={COLORS.secondary} />
             {nonUrgentTasks.length === 0 ? (dropTarget === 'non-urgent' ? <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>Drop here!</p> : <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />) : <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{nonUrgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
@@ -653,7 +690,7 @@ const SideQuests = () => {
 
       {/* FAB */}
       {view === 'tasks' && !showTaskForm && (
-        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: COLORS.primary, color: 'white', padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
+        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
           <Plus size={26} strokeWidth={2.5} />
         </button>
       )}
