@@ -18,7 +18,7 @@ const LoginScreen = ({ onLogin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   
-  const CORRECT_PIN = '1234'; // Change this to your preferred PIN
+  const CORRECT_PIN = '1234';
   
   const handleSubmit = () => {
     if (pin === CORRECT_PIN) {
@@ -32,15 +32,15 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 pixel-bg">
+    <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center p-6">
       <div className="mb-8 text-center">
         <div className="flex justify-center mb-4">
           <PixelSword size={48} />
         </div>
-        <h1 className="text-3xl font-bold text-fuchsia-300 mb-2 font-pixel-title uppercase tracking-wide">
+        <h1 className="font-pixel-title text-[44px] text-[#E5E7EB] leading-[40px] mb-3">
           Side Quests
         </h1>
-        <p className="text-gray-500 text-sm">Enter PIN to continue</p>
+        <p className="text-[#6A7282] text-sm">Enter PIN to continue</p>
       </div>
       
       <div className="w-full max-w-xs">
@@ -52,16 +52,16 @@ const LoginScreen = ({ onLogin }) => {
           onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="••••"
-          className={`w-full text-center text-2xl tracking-widest bg-gray-800/60 px-4 py-4 text-gray-100 placeholder-gray-600 pixel-input ${
-            error ? 'border-red-500 animate-shake' : ''
-          }`}
+          className={`w-full text-center text-2xl tracking-widest bg-[#1a1a24] px-4 py-4 text-[#E5E7EB] placeholder-[#6A7282] rounded-[4px] border-2 ${
+            error ? 'border-red-500 animate-shake' : 'border-[#2a2a3a]'
+          } focus:border-[#e879f9] focus:outline-none`}
           autoFocus
         />
         
         <button
           onClick={handleSubmit}
           disabled={pin.length < 4}
-          className="mt-4 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-4 rounded-xl font-medium disabled:opacity-40 transition-all active:scale-[0.98] pixel-shadow"
+          className="mt-4 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-4 rounded-[4px] font-medium disabled:opacity-40 transition-all active:scale-[0.98] pixel-shadow"
         >
           Unlock
         </button>
@@ -101,44 +101,49 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   
   return (
     <svg width={size} height={size} className="transform -rotate-90">
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} className="text-gray-700" />
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="text-fuchsia-400 transition-all duration-500" />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#2a2a3a" strokeWidth={strokeWidth} />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#e879f9" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-500" />
     </svg>
   );
 };
 
-// Energy indicator - simplified
-const EnergyIndicator = ({ level, compact = false }) => {
+// Energy indicator
+const EnergyIndicator = ({ level }) => {
   const config = {
-    low: { color: 'text-emerald-400', label: 'Low' },
-    medium: { color: 'text-amber-400', label: 'Med' },
-    high: { color: 'text-orange-400', label: 'High' }
+    low: { color: '#34d399', label: 'Low' },
+    medium: { color: '#fbbf24', label: 'Med' },
+    high: { color: '#f97316', label: 'High' }
   };
   const { color, label } = config[level];
   
-  return <span className={`text-xs ${color}`}>{label}</span>;
+  return <span className="text-xs" style={{ color }}>{label}</span>;
 };
 
 // Empty state
 const EmptyState = ({ icon: Icon, title, description, action, actionLabel }) => (
   <div className="text-center py-12 px-6">
-    <Icon size={40} className="mx-auto mb-4 text-gray-700" />
-    <h3 className="text-lg font-medium text-gray-300 mb-2">{title}</h3>
-    <p className="text-gray-500 mb-6 max-w-xs mx-auto">{description}</p>
+    <Icon size={40} className="mx-auto mb-4 text-[#3a3a4a]" />
+    <h3 className="text-base font-medium text-[#E5E7EB] mb-2">{title}</h3>
+    <p className="text-[#6A7282] mb-6 max-w-xs mx-auto text-sm">{description}</p>
     {action && (
-      <button onClick={action} className="px-6 py-2.5 bg-fuchsia-500/20 text-fuchsia-400 rounded-xl font-medium pixel-shadow">
+      <button onClick={action} className="px-6 py-2.5 bg-fuchsia-500/20 text-fuchsia-400 rounded-[4px] font-medium pixel-shadow">
         {actionLabel}
       </button>
     )}
   </div>
 );
 
-// Section header with pixel font
+// Section header with pixel outline bullet - Dogica Pixel 12px
 const SectionHeader = ({ title, count, color }) => (
   <div className="flex items-center gap-2 mb-3">
-    <div className={`w-2 h-2 ${color}`} />
-    <h2 className="text-sm text-gray-200 font-pixel uppercase tracking-wider">{title}</h2>
-    <span className="text-sm text-gray-500">({count})</span>
+    <div 
+      className={`w-2 h-2 ${color}`} 
+      style={{ 
+        boxShadow: '1px 0 0 0 white, 0 1px 0 0 white, 1px 1px 0 0 white, -1px 0 0 0 white, 0 -1px 0 0 white, -1px -1px 0 0 white, 1px -1px 0 0 white, -1px 1px 0 0 white' 
+      }} 
+    />
+    <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px]">{title}</h2>
+    <span className="text-[12px] text-[#6A7282]">({count})</span>
   </div>
 );
 
@@ -451,7 +456,7 @@ const SideQuests = () => {
     const isBeingDragged = draggedTask?.id === task.id;
 
     return (
-      <div className={`relative overflow-hidden rounded-xl touch-none ${isBeingDragged ? 'opacity-30' : ''}`}>
+      <div className={`relative overflow-hidden rounded-[4px] touch-none ${isBeingDragged ? 'opacity-30' : ''}`}>
         {/* Delete background */}
         <div className={`absolute inset-0 bg-red-500/30 flex items-center justify-end pr-6 transition-opacity ${swipeX < -30 ? 'opacity-100' : 'opacity-0'}`}>
           <Trash2 size={22} className="text-red-400" />
@@ -459,8 +464,11 @@ const SideQuests = () => {
         
         {/* Card */}
         <div
-          className="relative bg-gray-900/80 rounded-xl pixel-card"
-          style={{ transform: `translateX(${swipeX}px)` }}
+          className="relative bg-[#1a1a24] rounded-[4px] border border-[#2a2a3a]"
+          style={{ 
+            transform: `translateX(${swipeX}px)`,
+            boxShadow: '4px 4px 0 0 #0a0a0f'
+          }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -468,7 +476,7 @@ const SideQuests = () => {
           <div className="p-4">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 p-1">
-                <GripVertical size={20} className="text-gray-600" />
+                <GripVertical size={20} className="text-[#3a3a4a]" />
               </div>
               
               <div 
@@ -480,11 +488,11 @@ const SideQuests = () => {
                 }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-medium text-gray-100 leading-tight">{task.title}</h3>
+                  <h3 className="text-base font-medium text-[#E5E7EB] leading-tight">{task.title}</h3>
                   {subtaskProgress !== null && (
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <ProgressRing progress={subtaskProgress} size={18} strokeWidth={2} />
-                      <span className="text-xs text-gray-500">{subtaskProgress}%</span>
+                      <span className="text-xs text-[#6A7282]">{subtaskProgress}%</span>
                     </div>
                   )}
                 </div>
@@ -518,15 +526,15 @@ const SideQuests = () => {
       : 0;
 
     return (
-      <div className="min-h-screen bg-gray-950 pixel-bg">
-        <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
+      <div className="min-h-screen bg-[#0a0a0f]">
+        <div className="sticky top-0 z-40 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-[#2a2a3a]">
           <div className="px-4 py-3 flex items-center gap-3">
             <button onClick={closeTaskDetail} className="p-2 -ml-2">
-              <ArrowLeft size={22} className="text-gray-400" />
+              <ArrowLeft size={22} className="text-[#6A7282]" />
             </button>
-            <h2 className="text-sm font-pixel uppercase tracking-wider text-gray-200 flex-1">Quest Details</h2>
+            <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">Quest Details</h2>
             <button onClick={() => openTaskForm(currentTask)} className="p-2">
-              <Edit2 size={20} className="text-gray-400" />
+              <Edit2 size={20} className="text-[#6A7282]" />
             </button>
             <button onClick={() => { if (window.confirm('Delete?')) deleteTask(currentTask.id); }} className="p-2">
               <Trash2 size={20} className="text-red-400" />
@@ -535,63 +543,63 @@ const SideQuests = () => {
         </div>
 
         <div className="px-4 py-5 space-y-4">
-          <div className="bg-gray-900/60 p-5 pixel-card">
+          <div className="bg-[#1a1a24] p-5 rounded-[4px] border border-[#2a2a3a]" style={{ boxShadow: '4px 4px 0 0 #0a0a0f' }}>
             <div className="flex items-start gap-3 mb-4">
               <button onClick={() => toggleTask(currentTask.id)} className="mt-0.5 flex-shrink-0">
                 {currentTask.completed ? (
                   <CheckSquare size={28} className="text-emerald-400" />
                 ) : (
-                  <Square size={28} className="text-gray-600" />
+                  <Square size={28} className="text-[#3a3a4a]" />
                 )}
               </button>
-              <h1 className={`text-xl font-semibold leading-tight ${currentTask.completed ? 'line-through text-gray-500' : 'text-gray-100'}`}>
+              <h1 className={`text-xl font-semibold leading-tight ${currentTask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>
                 {currentTask.title}
               </h1>
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              <span className={`text-xs px-3 py-1.5 pixel-badge font-pixel uppercase ${
+              <span className={`text-xs px-3 py-1.5 rounded-[4px] border ${
                 currentTask.urgent 
-                  ? 'text-orange-300 bg-orange-500/15' 
-                  : 'text-fuchsia-300 bg-fuchsia-500/15'
+                  ? 'text-orange-300 bg-orange-500/15 border-orange-500/30' 
+                  : 'text-fuchsia-300 bg-fuchsia-500/15 border-fuchsia-500/30'
               }`}>
                 {currentTask.urgent ? 'Urgent' : 'Non-Urgent'}
               </span>
-              <span className="text-xs px-3 py-1.5 pixel-badge text-amber-400 bg-amber-500/15">
+              <span className="text-xs px-3 py-1.5 rounded-[4px] text-amber-400 bg-amber-500/15 border border-amber-500/30">
                 {currentTask.energy} energy
               </span>
               {currentTask.deadline && (
-                <span className="text-xs px-3 py-1.5 pixel-badge text-pink-300 bg-pink-500/15">
+                <span className="text-xs px-3 py-1.5 rounded-[4px] text-pink-300 bg-pink-500/15 border border-pink-500/30">
                   {new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </span>
               )}
             </div>
 
             {currentTask.notes && (
-              <div className="pt-4 border-t border-gray-800/50">
-                <p className="text-gray-400 whitespace-pre-wrap">{currentTask.notes}</p>
+              <div className="pt-4 border-t border-[#2a2a3a]">
+                <p className="text-[#6A7282] whitespace-pre-wrap">{currentTask.notes}</p>
               </div>
             )}
           </div>
 
-          <div className="bg-gray-900/60 p-5 pixel-card">
+          <div className="bg-[#1a1a24] p-5 rounded-[4px] border border-[#2a2a3a]" style={{ boxShadow: '4px 4px 0 0 #0a0a0f' }}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-pixel text-sm uppercase tracking-wider text-gray-200">Steps</h3>
+              <h3 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px]">Steps</h3>
               {currentTask.subtasks?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <ProgressRing progress={subtaskProgress} size={24} strokeWidth={2.5} />
-                  <span className="text-sm text-gray-400">{subtaskProgress}%</span>
+                  <span className="text-sm text-[#6A7282]">{subtaskProgress}%</span>
                 </div>
               )}
             </div>
             
             {!currentTask.subtasks || currentTask.subtasks.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-gray-500 mb-4">Break this into smaller steps</p>
+                <p className="text-[#6A7282] mb-4">Break this into smaller steps</p>
                 <button
                   onClick={() => breakdownWithAI(currentTask)}
                   disabled={aiLoading[currentTask.id]}
-                  className="px-6 py-3 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-medium pixel-shadow"
+                  className="px-6 py-3 bg-fuchsia-500/20 text-fuchsia-300 rounded-[4px] font-medium pixel-shadow"
                 >
                   <Wand2 size={16} className="inline mr-2" />
                   AI Break Down
@@ -603,14 +611,14 @@ const SideQuests = () => {
                   <button
                     key={idx}
                     onClick={() => toggleSubtask(currentTask.id, idx)}
-                    className="w-full flex items-start gap-3 p-3 bg-gray-800/40 rounded-xl text-left"
+                    className="w-full flex items-start gap-3 p-3 bg-[#0a0a0f] rounded-[4px] text-left"
                   >
                     {subtask.completed ? (
                       <CheckSquare size={20} className="text-emerald-400 flex-shrink-0" />
                     ) : (
-                      <Square size={20} className="text-gray-600 flex-shrink-0" />
+                      <Square size={20} className="text-[#3a3a4a] flex-shrink-0" />
                     )}
-                    <span className={`flex-1 ${subtask.completed ? 'line-through text-gray-500' : 'text-gray-300'}`}>
+                    <span className={`flex-1 ${subtask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>
                       {subtask.text}
                     </span>
                   </button>
@@ -629,61 +637,63 @@ const SideQuests = () => {
 
   // Main view
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 pb-28 pixel-bg">
+    <div className="min-h-screen bg-[#0a0a0f] text-[#E5E7EB] pb-28">
       <CelebrationOverlay show={celebration.show} message={celebration.message} />
 
       {/* Drag ghost */}
       {draggedTask && (
         <div 
-          className="fixed z-50 pointer-events-none bg-gray-800 border-2 border-fuchsia-500 rounded-xl p-3 opacity-90 pixel-shadow"
+          className="fixed z-50 pointer-events-none bg-[#1a1a24] border-2 border-fuchsia-500 rounded-[4px] p-3 opacity-90"
           style={{ 
             left: dragPosition.x - 100, 
             top: dragPosition.y - 30,
-            width: '200px'
+            width: '200px',
+            boxShadow: '4px 4px 0 0 #0a0a0f'
           }}
         >
-          <p className="text-sm text-gray-100 truncate">{draggedTask.title}</p>
+          <p className="text-sm text-[#E5E7EB] truncate">{draggedTask.title}</p>
         </div>
       )}
 
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
-        <div className="px-5 py-4">
-          <div className="flex items-center gap-3">
-            <PixelSword size={32} />
-            <h1 className="text-[32px] font-pixel-title uppercase text-fuchsia-300 tracking-wide">
+      <div className="sticky top-0 z-40 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-[#2a2a3a]">
+        <div className="px-5 py-5">
+          <div className="flex items-center gap-4">
+            <PixelSword size={40} />
+            <h1 className="font-pixel-title text-[44px] text-[#E5E7EB] leading-[40px]">
               Side Quests
             </h1>
           </div>
         </div>
 
+        {/* Tabs - Dogica Pixel 10px */}
         <div className="flex">
           <button
             onClick={() => setView('brain-dump')}
-            className={`flex-1 py-3 text-xs font-pixel uppercase tracking-wider border-b-2 ${
+            className={`flex-1 py-3 font-pixel text-[10px] leading-[24px] text-center border-b-2 ${
               view === 'brain-dump' 
                 ? 'text-fuchsia-400 border-fuchsia-400' 
-                : 'text-gray-500 border-transparent'
+                : 'text-[#6A7282] border-transparent'
             }`}
           >
             Brain Dump
             {brainDumps.length > 0 && (
-              <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-fuchsia-500/20 text-fuchsia-400">
+              <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded-[4px] bg-fuchsia-500/20 text-fuchsia-400">
                 {brainDumps.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setView('tasks')}
-            className={`flex-1 py-3 text-xs font-pixel uppercase tracking-wider border-b-2 ${
+            className={`flex-1 py-3 font-pixel text-[10px] leading-[24px] text-center border-b-2 ${
               view === 'tasks' 
                 ? 'text-pink-400 border-pink-400' 
-                : 'text-gray-500 border-transparent'
+                : 'text-[#6A7282] border-transparent'
             }`}
           >
             Quests
             {(urgentTasks.length + nonUrgentTasks.length) > 0 && (
-              <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-pink-500/20 text-pink-400">
+              <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded-[4px] bg-pink-500/20 text-pink-400">
                 {urgentTasks.length + nonUrgentTasks.length}
               </span>
             )}
@@ -694,23 +704,24 @@ const SideQuests = () => {
       {/* Brain Dump View */}
       {view === 'brain-dump' && (
         <div className="px-4 py-5 space-y-4">
-          <div className="bg-gray-900/60 p-4 pixel-card">
+          <div className="bg-[#1a1a24] p-4 rounded-[4px] border border-[#2a2a3a]" style={{ boxShadow: '4px 4px 0 0 #0a0a0f' }}>
             <div className="relative">
               <textarea
                 ref={textareaRef}
                 value={newDump}
                 onChange={(e) => setNewDump(e.target.value)}
                 placeholder="What's on your mind?"
-                className="w-full bg-gray-800/60 px-4 py-3 pr-14 text-gray-100 placeholder-gray-500 resize-none text-base pixel-input"
+                className="w-full bg-[#0a0a0f] px-4 py-3 pr-14 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded-[4px] border border-[#2a2a3a] focus:border-fuchsia-500 focus:outline-none"
                 rows={3}
               />
               <button
                 onClick={startDictation}
-                className={`absolute right-3 bottom-3 p-2.5 rounded-xl pixel-shadow ${
+                className={`absolute right-3 bottom-3 p-2.5 rounded-[4px] ${
                   isListening 
                     ? 'bg-red-500 text-white animate-pulse' 
-                    : 'bg-gray-700 text-gray-400'
+                    : 'bg-[#2a2a3a] text-[#6A7282]'
                 }`}
+                style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
               >
                 <Mic size={20} />
               </button>
@@ -718,7 +729,8 @@ const SideQuests = () => {
             <button
               onClick={addBrainDump}
               disabled={!newDump.trim()}
-              className="mt-3 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-3.5 rounded-xl font-medium disabled:opacity-40 text-base pixel-shadow"
+              className="mt-3 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-3.5 rounded-[4px] font-medium disabled:opacity-40 text-base"
+              style={{ boxShadow: '3px 3px 0 0 #0a0a0f' }}
             >
               Capture Thought
             </button>
@@ -733,18 +745,20 @@ const SideQuests = () => {
           ) : (
             <div className="space-y-3">
               {brainDumps.map((dump) => (
-                <div key={dump.id} className="bg-gray-900/60 p-4 pixel-card">
-                  <p className="text-gray-200 mb-3 text-base">{dump.text}</p>
+                <div key={dump.id} className="bg-[#1a1a24] p-4 rounded-[4px] border border-[#2a2a3a]" style={{ boxShadow: '4px 4px 0 0 #0a0a0f' }}>
+                  <p className="text-[#E5E7EB] mb-3 text-base">{dump.text}</p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => convertToTask(dump)}
-                      className="flex-1 bg-fuchsia-500/20 text-fuchsia-300 py-2.5 rounded-lg font-medium pixel-shadow"
+                      className="flex-1 bg-fuchsia-500/20 text-fuchsia-300 py-2.5 rounded-[4px] font-medium"
+                      style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
                     >
                       Turn into Quest
                     </button>
                     <button
                       onClick={() => deleteDump(dump.id)}
-                      className="px-4 bg-gray-800 text-gray-400 rounded-lg pixel-shadow"
+                      className="px-4 bg-[#2a2a3a] text-[#6A7282] rounded-[4px]"
+                      style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -762,13 +776,13 @@ const SideQuests = () => {
           {/* Urgent section */}
           <div
             ref={urgentSectionRef}
-            className={`transition-all rounded-xl p-2 -m-2 ${
+            className={`transition-all rounded-[4px] p-2 -m-2 ${
               dropTarget === 'urgent' ? 'bg-orange-500/20 ring-2 ring-orange-500/50' : ''
             }`}
           >
             <SectionHeader title="Urgent" count={urgentTasks.length} color="bg-orange-500" />
             {urgentTasks.length === 0 ? (
-              <p className="text-gray-600 py-4 text-center text-sm">
+              <p className="text-[#6A7282] py-4 text-center text-sm">
                 {dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}
               </p>
             ) : (
@@ -783,14 +797,14 @@ const SideQuests = () => {
           {/* Non-urgent section */}
           <div
             ref={nonUrgentSectionRef}
-            className={`transition-all rounded-xl p-2 -m-2 ${
+            className={`transition-all rounded-[4px] p-2 -m-2 ${
               dropTarget === 'non-urgent' ? 'bg-fuchsia-500/20 ring-2 ring-fuchsia-500/50' : ''
             }`}
           >
             <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="bg-fuchsia-500" />
             {nonUrgentTasks.length === 0 ? (
               dropTarget === 'non-urgent' ? (
-                <p className="text-gray-600 py-4 text-center text-sm">Drop here!</p>
+                <p className="text-[#6A7282] py-4 text-center text-sm">Drop here!</p>
               ) : (
                 <EmptyState
                   icon={Sparkles}
@@ -814,7 +828,7 @@ const SideQuests = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <SectionHeader title="Completed" count={completedTasks.length} color="bg-emerald-500" />
-                <button onClick={clearCompleted} className="text-sm text-gray-500">
+                <button onClick={clearCompleted} className="text-sm text-[#6A7282]">
                   Clear
                 </button>
               </div>
@@ -823,11 +837,11 @@ const SideQuests = () => {
                   <div
                     key={task.id}
                     onClick={() => openTaskDetail(task)}
-                    className="bg-gray-900/40 p-4 rounded-xl pixel-card opacity-60"
+                    className="bg-[#1a1a24]/60 p-4 rounded-[4px] border border-[#2a2a3a] opacity-60"
                   >
                     <div className="flex items-center gap-3">
                       <CheckSquare size={20} className="text-emerald-500" />
-                      <span className="line-through text-gray-500">{task.title}</span>
+                      <span className="line-through text-[#6A7282]">{task.title}</span>
                     </div>
                   </div>
                 ))}
@@ -841,7 +855,8 @@ const SideQuests = () => {
       {view === 'tasks' && !showTaskForm && (
         <button
           onClick={() => openTaskForm()}
-          className="fixed bottom-6 right-6 bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white p-4 rounded-2xl pixel-shadow-strong"
+          className="fixed bottom-6 right-6 bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white p-4 rounded-full"
+          style={{ boxShadow: '4px 4px 0 0 #0a0a0f' }}
         >
           <Plus size={26} strokeWidth={2.5} />
         </button>
@@ -858,35 +873,8 @@ const SideQuests = () => {
         .font-pixel {
           font-family: 'Dogica Pixel', monospace;
         }
-        .pixel-bg {
-          background-image: 
-            linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-        .pixel-card {
-          border: 2px solid #1f2937;
-          border-radius: 12px;
-          box-shadow: 4px 4px 0 0 #0f172a;
-        }
         .pixel-shadow {
-          box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3);
-        }
-        .pixel-shadow-strong {
-          box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.4);
-        }
-        .pixel-input {
-          border: 2px solid #374151;
-          border-radius: 8px;
-        }
-        .pixel-input:focus {
-          border-color: #e879f9;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(232, 121, 249, 0.2);
-        }
-        .pixel-badge {
-          border: 1px solid #374151;
-          border-radius: 6px;
+          box-shadow: 3px 3px 0 0 #0a0a0f;
         }
         @keyframes celebrate {
           0% { transform: scale(0.5); opacity: 0; }
@@ -924,13 +912,13 @@ const TaskForm = ({ task, onSave, onCancel }) => {
   return (
     <div 
       ref={formRef}
-      className="fixed inset-0 bg-gray-950 z-50 overflow-y-auto pixel-bg"
+      className="fixed inset-0 bg-[#0a0a0f] z-50 overflow-y-auto"
     >
-      <div className="sticky top-0 bg-gray-950/95 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-[#2a2a3a] px-4 py-3 flex items-center gap-3">
         <button onClick={onCancel} className="p-2 -ml-2">
-          <X size={22} className="text-gray-400" />
+          <X size={22} className="text-[#6A7282]" />
         </button>
-        <h2 className="text-sm font-pixel uppercase tracking-wider text-gray-200 flex-1">
+        <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">
           {task?.id ? 'Edit Quest' : 'New Quest'}
         </h2>
         <button
@@ -939,7 +927,8 @@ const TaskForm = ({ task, onSave, onCancel }) => {
             onSave({ title, urgent, energy, deadline, notes, subtasks: task?.subtasks || [] });
           }}
           disabled={!title.trim()}
-          className="px-4 py-2 bg-fuchsia-500 text-white rounded-xl font-medium disabled:opacity-40 pixel-shadow"
+          className="px-4 py-2 bg-fuchsia-500 text-white rounded-[4px] font-medium disabled:opacity-40"
+          style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
         >
           Save
         </button>
@@ -947,34 +936,36 @@ const TaskForm = ({ task, onSave, onCancel }) => {
 
       <div className="p-4 space-y-5">
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">What needs doing?</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">What needs doing?</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Set up Roth IRA"
-            className="w-full bg-gray-800/60 px-4 py-3.5 text-gray-100 placeholder-gray-500 text-base pixel-input"
+            className="w-full bg-[#1a1a24] px-4 py-3.5 text-[#E5E7EB] placeholder-[#6A7282] text-base rounded-[4px] border border-[#2a2a3a] focus:border-fuchsia-500 focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Priority</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Priority</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setUrgent(true)}
-              className={`py-3.5 rounded-xl font-medium text-base pixel-shadow ${
-                urgent ? 'bg-orange-500 text-white' : 'bg-gray-800/60 text-gray-400 border-2 border-gray-700/50'
+              className={`py-3.5 rounded-[4px] font-medium text-base ${
+                urgent ? 'bg-orange-500 text-white' : 'bg-[#1a1a24] text-[#6A7282] border border-[#2a2a3a]'
               }`}
+              style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
             >
               Urgent
             </button>
             <button
               type="button"
               onClick={() => setUrgent(false)}
-              className={`py-3.5 rounded-xl font-medium text-base pixel-shadow ${
-                !urgent ? 'bg-fuchsia-500 text-white' : 'bg-gray-800/60 text-gray-400 border-2 border-gray-700/50'
+              className={`py-3.5 rounded-[4px] font-medium text-base ${
+                !urgent ? 'bg-fuchsia-500 text-white' : 'bg-[#1a1a24] text-[#6A7282] border border-[#2a2a3a]'
               }`}
+              style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
             >
               Someday
             </button>
@@ -982,16 +973,17 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Energy needed</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Energy needed</label>
           <div className="grid grid-cols-3 gap-2">
             {['low', 'medium', 'high'].map((level) => (
               <button
                 key={level}
                 type="button"
                 onClick={() => setEnergy(level)}
-                className={`py-3.5 rounded-xl font-medium capitalize text-base pixel-shadow ${
-                  energy === level ? 'bg-fuchsia-500 text-white' : 'bg-gray-800/60 text-gray-400 border-2 border-gray-700/50'
+                className={`py-3.5 rounded-[4px] font-medium capitalize text-base ${
+                  energy === level ? 'bg-fuchsia-500 text-white' : 'bg-[#1a1a24] text-[#6A7282] border border-[#2a2a3a]'
                 }`}
+                style={{ boxShadow: '2px 2px 0 0 #0a0a0f' }}
               >
                 {level}
               </button>
@@ -1000,22 +992,22 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Deadline (optional)</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Deadline (optional)</label>
           <input
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="w-full bg-gray-800/60 px-4 py-3.5 text-gray-100 text-base pixel-input"
+            className="w-full bg-[#1a1a24] px-4 py-3.5 text-[#E5E7EB] text-base rounded-[4px] border border-[#2a2a3a] focus:border-fuchsia-500 focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Notes (optional)</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Notes (optional)</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any additional context..."
-            className="w-full bg-gray-800/60 px-4 py-3 text-gray-100 placeholder-gray-500 resize-none text-base pixel-input"
+            className="w-full bg-[#1a1a24] px-4 py-3 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded-[4px] border border-[#2a2a3a] focus:border-fuchsia-500 focus:outline-none"
             rows={4}
           />
         </div>
@@ -1024,24 +1016,6 @@ const TaskForm = ({ task, onSave, onCancel }) => {
       <style>{`
         .font-pixel {
           font-family: 'Dogica Pixel', monospace;
-        }
-        .pixel-bg {
-          background-image: 
-            linear-gradient(rgba(232, 121, 249, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232, 121, 249, 0.03) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-        .pixel-shadow {
-          box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3);
-        }
-        .pixel-input {
-          border: 2px solid #374151;
-          border-radius: 8px;
-        }
-        .pixel-input:focus {
-          border-color: #e879f9;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(232, 121, 249, 0.2);
         }
       `}</style>
     </div>
