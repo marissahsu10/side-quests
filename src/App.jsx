@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Sparkles, CheckSquare, Square, Trash2, Edit2, Wand2, Brain, Mic, ArrowLeft, X, Trophy, GripVertical } from 'lucide-react';
 
 // ============================================
-// COMPONENTS
+// ICONS
 // ============================================
 
 const PixelSword = ({ size = 32 }) => (
@@ -15,6 +15,37 @@ const PixelSword = ({ size = 32 }) => (
     <rect x="6" y="15" width="4" height="1" fill="#f0abfc"/>
   </svg>
 );
+
+const PixelScroll = ({ size = 48 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
+    <rect x="3" y="1" width="10" height="2" fill="#6A7282"/>
+    <rect x="2" y="2" width="1" height="12" fill="#6A7282"/>
+    <rect x="13" y="2" width="1" height="12" fill="#4a5568"/>
+    <rect x="3" y="3" width="10" height="10" fill="#374151"/>
+    <rect x="3" y="13" width="10" height="2" fill="#4a5568"/>
+    <rect x="5" y="5" width="6" height="1" fill="#6A7282"/>
+    <rect x="5" y="7" width="4" height="1" fill="#6A7282"/>
+    <rect x="5" y="9" width="5" height="1" fill="#6A7282"/>
+  </svg>
+);
+
+const PixelSparkle = ({ size = 48 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
+    <rect x="7" y="0" width="2" height="3" fill="#d946ef"/>
+    <rect x="7" y="13" width="2" height="3" fill="#d946ef"/>
+    <rect x="0" y="7" width="3" height="2" fill="#d946ef"/>
+    <rect x="13" y="7" width="3" height="2" fill="#d946ef"/>
+    <rect x="3" y="3" width="2" height="2" fill="#ec4899"/>
+    <rect x="11" y="3" width="2" height="2" fill="#ec4899"/>
+    <rect x="3" y="11" width="2" height="2" fill="#ec4899"/>
+    <rect x="11" y="11" width="2" height="2" fill="#ec4899"/>
+    <rect x="6" y="6" width="4" height="4" fill="#4C6FFF"/>
+  </svg>
+);
+
+// ============================================
+// COMPONENTS
+// ============================================
 
 const CelebrationOverlay = ({ show, message }) => {
   if (!show) return null;
@@ -35,33 +66,32 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   return (
     <svg width={size} height={size} className="transform -rotate-90">
       <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#1f2937" strokeWidth={strokeWidth} />
-      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#e879f9" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-500" />
+      <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#d946ef" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-500" />
     </svg>
   );
 };
 
 const EnergyIndicator = ({ level }) => {
   const config = {
-    low: { color: 'text-emerald-400', label: 'Low' },
-    medium: { color: 'text-amber-400', label: 'Med' },
-    high: { color: 'text-orange-400', label: 'High' }
+    low: { color: '#34d399', label: 'Low' },
+    medium: { color: '#fbbf24', label: 'Med' },
+    high: { color: '#f97316', label: 'High' }
   };
-  return <span className={`text-xs ${config[level].color}`}>{config[level].label}</span>;
+  return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
 };
 
 const SectionHeader = ({ title, count, color }) => (
   <div className="flex items-center gap-2 mb-3">
-    <div className={`w-2 h-2 ${color} pixel-dot`} />
+    <div className="w-2 h-2 pixel-dot" style={{ backgroundColor: color }} />
     <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px]">{title}</h2>
-    <span className="text-[12px] text-gray-500">({count})</span>
+    <span className="text-[12px] text-[#6A7282]">({count})</span>
   </div>
 );
 
-const EmptyState = ({ icon: Icon, title, description, action, actionLabel }) => (
+const EmptyState = ({ icon: Icon, description, action, actionLabel }) => (
   <div className="text-center py-12 px-6">
-    <Icon size={40} className="mx-auto mb-4 text-gray-700" />
-    <h3 className="text-base font-medium text-gray-300 mb-2">{title}</h3>
-    <p className="text-gray-500 mb-6 max-w-xs mx-auto text-sm">{description}</p>
+    <div className="flex justify-center mb-4"><Icon size={48} /></div>
+    <p className="text-[#6A7282] mb-6 max-w-xs mx-auto text-sm">{description}</p>
     {action && (
       <button onClick={action} className="px-6 py-2.5 bg-fuchsia-500/20 text-fuchsia-400 rounded font-medium pixel-shadow">
         {actionLabel}
@@ -104,7 +134,7 @@ const LoginScreen = ({ onLogin }) => {
       <div className="mb-8 text-center">
         <div className="flex justify-center mb-4"><PixelSword size={48} /></div>
         <h1 className="font-pixel-title text-[32px] text-[#E5E7EB] leading-[28px] mb-3">Side Quests</h1>
-        <p className="text-gray-500 text-sm">Enter PIN to continue</p>
+        <p className="text-[#6A7282] text-sm">Enter PIN to continue</p>
       </div>
       <div className="w-full max-w-xs">
         <input
@@ -114,13 +144,13 @@ const LoginScreen = ({ onLogin }) => {
           onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="••••"
-          className={`w-full text-center text-2xl tracking-widest bg-gray-900/60 px-4 py-4 text-gray-100 placeholder-gray-600 rounded border-2 ${error ? 'border-red-500 animate-shake' : 'border-gray-800/50'} focus:border-fuchsia-500/50 focus:outline-none`}
+          className={`w-full text-center text-2xl tracking-widest bg-gray-900/60 px-4 py-4 text-[#E5E7EB] placeholder-[#6A7282] rounded border-2 ${error ? 'border-red-500 animate-shake' : 'border-gray-800/50'} focus:border-fuchsia-500/50 focus:outline-none`}
           autoFocus
         />
         <button
           onClick={handleSubmit}
           disabled={pin.length < 4}
-          className="mt-4 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-4 rounded font-medium disabled:opacity-40 pixel-shadow"
+          className="mt-4 w-full bg-fuchsia-500 text-white py-4 rounded font-medium disabled:opacity-40 pixel-shadow"
         >
           Unlock
         </button>
@@ -130,7 +160,7 @@ const LoginScreen = ({ onLogin }) => {
 };
 
 // ============================================
-// TASK FORM
+// TASK FORM - Save button at bottom
 // ============================================
 
 const TaskForm = ({ task, onSave, onCancel }) => {
@@ -139,16 +169,6 @@ const TaskForm = ({ task, onSave, onCancel }) => {
   const [energy, setEnergy] = useState(task?.energy || 'medium');
   const [deadline, setDeadline] = useState(task?.deadline || '');
   const [notes, setNotes] = useState(task?.notes || '');
-  const formRef = useRef(null);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (formRef.current) formRef.current.style.height = `${window.visualViewport?.height || window.innerHeight}px`;
-    };
-    window.visualViewport?.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.visualViewport?.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleSave = () => {
     if (!title.trim()) return;
@@ -156,40 +176,49 @@ const TaskForm = ({ task, onSave, onCancel }) => {
   };
 
   return (
-    <div ref={formRef} className="fixed inset-0 bg-[#030712] z-50 overflow-y-auto">
-      <div className="sticky top-0 bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-3 flex items-center gap-3">
-        <button onClick={onCancel} className="p-2 -ml-2"><X size={22} className="text-gray-400" /></button>
+    <div className="fixed inset-0 bg-[#030712] z-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-3 flex items-center gap-3">
+        <button onClick={onCancel} className="p-2 -ml-2"><X size={22} className="text-[#6A7282]" /></button>
         <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">{task?.id ? 'Edit Quest' : 'New Quest'}</h2>
-        <button onClick={handleSave} disabled={!title.trim()} className="px-4 py-2 bg-fuchsia-500 text-white rounded font-medium disabled:opacity-40 pixel-shadow">Save</button>
       </div>
-      <div className="p-4 space-y-5">
+
+      {/* Form Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-5">
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">What needs doing?</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Set up Roth IRA" className="w-full bg-gray-900/60 px-4 py-3.5 text-gray-100 placeholder-gray-500 text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
+          <label className="block text-[#6A7282] mb-2 text-sm">What needs doing?</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Set up Roth IRA" className="w-full bg-gray-900/60 px-4 py-3.5 text-[#E5E7EB] placeholder-[#6A7282] text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
         </div>
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Priority</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Priority</label>
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => setUrgent(true)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${urgent ? 'bg-orange-500 text-white' : 'bg-gray-900/60 text-gray-400 border border-gray-800/50'}`}>Urgent</button>
-            <button type="button" onClick={() => setUrgent(false)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${!urgent ? 'bg-fuchsia-500 text-white' : 'bg-gray-900/60 text-gray-400 border border-gray-800/50'}`}>Someday</button>
+            <button type="button" onClick={() => setUrgent(true)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${urgent ? 'bg-orange-500 text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>Urgent</button>
+            <button type="button" onClick={() => setUrgent(false)} className={`py-3.5 rounded font-medium text-base pixel-shadow ${!urgent ? 'bg-fuchsia-500 text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>Someday</button>
           </div>
         </div>
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Energy needed</label>
+          <label className="block text-[#6A7282] mb-2 text-sm">Energy needed</label>
           <div className="grid grid-cols-3 gap-2">
             {['low', 'medium', 'high'].map((level) => (
-              <button key={level} type="button" onClick={() => setEnergy(level)} className={`py-3.5 rounded font-medium capitalize text-base pixel-shadow ${energy === level ? 'bg-fuchsia-500 text-white' : 'bg-gray-900/60 text-gray-400 border border-gray-800/50'}`}>{level}</button>
+              <button key={level} type="button" onClick={() => setEnergy(level)} className={`py-3.5 rounded font-medium capitalize text-base pixel-shadow ${energy === level ? 'bg-[#4C6FFF] text-white' : 'bg-gray-900/60 text-[#6A7282] border border-gray-800/50'}`}>{level}</button>
             ))}
           </div>
         </div>
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Deadline (optional)</label>
-          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="w-full bg-gray-900/60 px-4 py-3.5 text-gray-100 text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
+          <label className="block text-[#6A7282] mb-2 text-sm">Deadline (optional)</label>
+          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="w-full bg-gray-900/60 px-4 py-3.5 text-[#E5E7EB] text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" />
         </div>
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Notes (optional)</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." className="w-full bg-gray-900/60 px-4 py-3 text-gray-100 placeholder-gray-500 resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={4} />
+          <label className="block text-[#6A7282] mb-2 text-sm">Notes (optional)</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." className="w-full bg-gray-900/60 px-4 py-3 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={4} />
         </div>
+      </div>
+
+      {/* Save Button - Fixed at bottom */}
+      <div className="p-4 border-t border-gray-800/50 bg-[#030712]">
+        <button onClick={handleSave} disabled={!title.trim()} className="w-full bg-fuchsia-500 text-white py-4 rounded font-medium disabled:opacity-40 pixel-shadow">
+          Save Quest
+        </button>
       </div>
     </div>
   );
@@ -409,14 +438,14 @@ const SideQuests = () => {
         >
           <div className="p-4">
             <div className="flex items-start gap-3">
-              <GripVertical size={20} className="text-gray-600 flex-shrink-0 mt-0.5" />
+              <GripVertical size={20} className="text-[#6A7282] flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0" onClick={() => { if (!isDragging && swipeX === 0) openTaskDetail(task); }}>
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-medium text-gray-100 leading-tight">{task.title}</h3>
+                  <h3 className="text-base font-medium text-[#E5E7EB] leading-tight">{task.title}</h3>
                   {subtaskProgress !== null && (
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <ProgressRing progress={subtaskProgress} size={18} strokeWidth={2} />
-                      <span className="text-xs text-gray-500">{subtaskProgress}%</span>
+                      <span className="text-xs text-[#6A7282]">{subtaskProgress}%</span>
                     </div>
                   )}
                 </div>
@@ -445,9 +474,9 @@ const SideQuests = () => {
       <div className="min-h-screen bg-[#030712]">
         <div className="sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/50">
           <div className="px-4 py-3 flex items-center gap-3">
-            <button onClick={closeTaskDetail} className="p-2 -ml-2"><ArrowLeft size={22} className="text-gray-400" /></button>
+            <button onClick={closeTaskDetail} className="p-2 -ml-2"><ArrowLeft size={22} className="text-[#6A7282]" /></button>
             <h2 className="font-pixel text-[12px] text-[#E5E7EB] leading-[28px] flex-1">Quest Details</h2>
-            <button onClick={() => openTaskForm(currentTask)} className="p-2"><Edit2 size={20} className="text-gray-400" /></button>
+            <button onClick={() => openTaskForm(currentTask)} className="p-2"><Edit2 size={20} className="text-[#6A7282]" /></button>
             <button onClick={() => { if (window.confirm('Delete?')) deleteTask(currentTask.id); }} className="p-2"><Trash2 size={20} className="text-red-400" /></button>
           </div>
         </div>
@@ -455,16 +484,16 @@ const SideQuests = () => {
           <div className="bg-gray-900/60 p-5 rounded border border-gray-800/50 pixel-card">
             <div className="flex items-start gap-3 mb-4">
               <button onClick={() => toggleTask(currentTask.id)} className="mt-0.5 flex-shrink-0">
-                {currentTask.completed ? <CheckSquare size={28} className="text-emerald-400" /> : <Square size={28} className="text-gray-600" />}
+                {currentTask.completed ? <CheckSquare size={28} className="text-emerald-400" /> : <Square size={28} className="text-[#6A7282]" />}
               </button>
-              <h1 className={`text-xl font-semibold leading-tight ${currentTask.completed ? 'line-through text-gray-500' : 'text-gray-100'}`}>{currentTask.title}</h1>
+              <h1 className={`text-xl font-semibold leading-tight ${currentTask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>{currentTask.title}</h1>
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               <span className={`text-xs px-3 py-1.5 rounded border ${currentTask.urgent ? 'text-orange-300 bg-orange-500/15 border-orange-500/30' : 'text-fuchsia-300 bg-fuchsia-500/15 border-fuchsia-500/30'}`}>{currentTask.urgent ? 'Urgent' : 'Non-Urgent'}</span>
-              <span className="text-xs px-3 py-1.5 rounded text-amber-400 bg-amber-500/15 border border-amber-500/30">{currentTask.energy} energy</span>
+              <span className="text-xs px-3 py-1.5 rounded text-[#4C6FFF] bg-[#4C6FFF]/15 border border-[#4C6FFF]/30">{currentTask.energy} energy</span>
               {currentTask.deadline && <span className="text-xs px-3 py-1.5 rounded text-pink-300 bg-pink-500/15 border border-pink-500/30">{new Date(currentTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
             </div>
-            {currentTask.notes && <div className="pt-4 border-t border-gray-800/50"><p className="text-gray-400 whitespace-pre-wrap">{currentTask.notes}</p></div>}
+            {currentTask.notes && <div className="pt-4 border-t border-gray-800/50"><p className="text-[#6A7282] whitespace-pre-wrap">{currentTask.notes}</p></div>}
           </div>
           <div className="bg-gray-900/60 p-5 rounded border border-gray-800/50 pixel-card">
             <div className="flex items-center justify-between mb-4">
@@ -472,21 +501,21 @@ const SideQuests = () => {
               {currentTask.subtasks?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <ProgressRing progress={subtaskProgress} size={24} strokeWidth={2.5} />
-                  <span className="text-sm text-gray-400">{subtaskProgress}%</span>
+                  <span className="text-sm text-[#6A7282]">{subtaskProgress}%</span>
                 </div>
               )}
             </div>
             {!currentTask.subtasks?.length ? (
               <div className="text-center py-6">
-                <p className="text-gray-500 mb-4">Break this into smaller steps</p>
+                <p className="text-[#6A7282] mb-4">Break this into smaller steps</p>
                 <button className="px-6 py-3 bg-fuchsia-500/20 text-fuchsia-300 rounded font-medium pixel-shadow"><Wand2 size={16} className="inline mr-2" />AI Break Down</button>
               </div>
             ) : (
               <div className="space-y-2">
                 {currentTask.subtasks.map((subtask, idx) => (
                   <button key={idx} onClick={() => toggleSubtask(currentTask.id, idx)} className="w-full flex items-start gap-3 p-3 bg-[#030712] rounded text-left">
-                    {subtask.completed ? <CheckSquare size={20} className="text-emerald-400 flex-shrink-0" /> : <Square size={20} className="text-gray-600 flex-shrink-0" />}
-                    <span className={`flex-1 ${subtask.completed ? 'line-through text-gray-500' : 'text-gray-300'}`}>{subtask.text}</span>
+                    {subtask.completed ? <CheckSquare size={20} className="text-emerald-400 flex-shrink-0" /> : <Square size={20} className="text-[#6A7282] flex-shrink-0" />}
+                    <span className={`flex-1 ${subtask.completed ? 'line-through text-[#6A7282]' : 'text-[#E5E7EB]'}`}>{subtask.text}</span>
                   </button>
                 ))}
               </div>
@@ -500,12 +529,15 @@ const SideQuests = () => {
 
   // Main View
   return (
-    <div className="min-h-screen bg-[#030712] text-gray-100 pb-28">
+    <div className="min-h-screen bg-[#030712] text-[#E5E7EB] pb-28">
+      {/* Google Font - loaded directly for better mobile support */}
+      <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      
       <CelebrationOverlay show={celebration.show} message={celebration.message} />
       
       {draggedTask && (
         <div className="fixed z-50 pointer-events-none bg-gray-900 border-2 border-fuchsia-500 rounded p-3 opacity-90 pixel-shadow" style={{ left: dragPosition.x - 100, top: dragPosition.y - 30, width: '200px' }}>
-          <p className="text-sm text-gray-100 truncate">{draggedTask.title}</p>
+          <p className="text-sm text-[#E5E7EB] truncate">{draggedTask.title}</p>
         </div>
       )}
 
@@ -530,21 +562,21 @@ const SideQuests = () => {
         <div className="px-4 py-5 space-y-4">
           <div className="bg-gray-900/60 p-4 rounded border border-gray-800/50 pixel-card">
             <div className="relative">
-              <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" className="w-full bg-[#030712] px-4 py-3 pr-14 text-gray-100 placeholder-gray-500 resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={3} />
-              <button onClick={startDictation} className={`absolute right-3 bottom-3 p-2.5 rounded pixel-shadow ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-800 text-gray-400'}`}><Mic size={20} /></button>
+              <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" className="w-full bg-[#030712] px-4 py-3 pr-14 text-[#E5E7EB] placeholder-[#6A7282] resize-none text-base rounded border border-gray-800/50 focus:border-fuchsia-500/50 focus:outline-none" rows={3} />
+              <button onClick={startDictation} className={`absolute right-3 bottom-3 p-2.5 rounded pixel-shadow ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-800 text-[#6A7282]'}`}><Mic size={20} /></button>
             </div>
-            <button onClick={addBrainDump} disabled={!newDump.trim()} className="mt-3 w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white py-3.5 rounded font-medium disabled:opacity-40 text-base pixel-shadow">Capture Thought</button>
+            <button onClick={addBrainDump} disabled={!newDump.trim()} className="mt-3 w-full bg-fuchsia-500 text-white py-3.5 rounded font-medium disabled:opacity-40 text-base pixel-shadow">Capture Thought</button>
           </div>
           {brainDumps.length === 0 ? (
-            <EmptyState icon={Brain} title="Mind like water" description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
+            <EmptyState icon={PixelScroll} description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
           ) : (
             <div className="space-y-3">
               {brainDumps.map((dump) => (
                 <div key={dump.id} className="bg-gray-900/60 p-4 rounded border border-gray-800/50 pixel-card">
-                  <p className="text-gray-200 mb-3 text-base">{dump.text}</p>
+                  <p className="text-[#E5E7EB] mb-3 text-base">{dump.text}</p>
                   <div className="flex gap-2">
                     <button onClick={() => convertToTask(dump)} className="flex-1 bg-fuchsia-500/20 text-fuchsia-300 py-2.5 rounded font-medium pixel-shadow">Turn into Quest</button>
-                    <button onClick={() => deleteDump(dump.id)} className="px-4 bg-gray-800 text-gray-400 rounded pixel-shadow"><Trash2 size={18} /></button>
+                    <button onClick={() => deleteDump(dump.id)} className="px-4 bg-gray-800 text-[#6A7282] rounded pixel-shadow"><Trash2 size={18} /></button>
                   </div>
                 </div>
               ))}
@@ -556,23 +588,23 @@ const SideQuests = () => {
       {view === 'tasks' && (
         <div className="px-4 py-5 space-y-6">
           <div ref={urgentSectionRef} className={`transition-all rounded p-2 -m-2 ${dropTarget === 'urgent' ? 'bg-orange-500/20 ring-2 ring-orange-500/50' : ''}`}>
-            <SectionHeader title="Urgent" count={urgentTasks.length} color="bg-orange-500" />
-            {urgentTasks.length === 0 ? <p className="text-gray-600 py-4 text-center text-sm">{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div className="space-y-2">{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
+            <SectionHeader title="Urgent" count={urgentTasks.length} color="#f97316" />
+            {urgentTasks.length === 0 ? <p className="text-[#6A7282] py-4 text-center text-sm">{dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}</p> : <div className="space-y-2">{urgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
           <div ref={nonUrgentSectionRef} className={`transition-all rounded p-2 -m-2 ${dropTarget === 'non-urgent' ? 'bg-fuchsia-500/20 ring-2 ring-fuchsia-500/50' : ''}`}>
-            <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="bg-fuchsia-500" />
-            {nonUrgentTasks.length === 0 ? (dropTarget === 'non-urgent' ? <p className="text-gray-600 py-4 text-center text-sm">Drop here!</p> : <EmptyState icon={Sparkles} title="No quests yet" description="Capture thoughts in Brain Dump, or add a quest directly." action={() => openTaskForm()} actionLabel="Add Quest" />) : <div className="space-y-2">{nonUrgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
+            <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="#d946ef" />
+            {nonUrgentTasks.length === 0 ? (dropTarget === 'non-urgent' ? <p className="text-[#6A7282] py-4 text-center text-sm">Drop here!</p> : <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />) : <div className="space-y-2">{nonUrgentTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>}
           </div>
           {completedTasks.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-3">
-                <SectionHeader title="Completed" count={completedTasks.length} color="bg-emerald-500" />
-                <button onClick={clearCompleted} className="text-sm text-gray-500">Clear</button>
+                <SectionHeader title="Completed" count={completedTasks.length} color="#34d399" />
+                <button onClick={clearCompleted} className="text-sm text-[#6A7282]">Clear</button>
               </div>
               <div className="space-y-2">
                 {completedTasks.slice(0, 5).map(task => (
                   <div key={task.id} onClick={() => openTaskDetail(task)} className="bg-gray-900/40 p-4 rounded border border-gray-800/30 opacity-60">
-                    <div className="flex items-center gap-3"><CheckSquare size={20} className="text-emerald-500" /><span className="line-through text-gray-500">{task.title}</span></div>
+                    <div className="flex items-center gap-3"><CheckSquare size={20} className="text-emerald-500" /><span className="line-through text-[#6A7282]">{task.title}</span></div>
                   </div>
                 ))}
               </div>
@@ -582,7 +614,7 @@ const SideQuests = () => {
       )}
 
       {view === 'tasks' && !showTaskForm && (
-        <button onClick={() => openTaskForm()} className="fixed bottom-6 right-6 bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white p-4 rounded-full pixel-shadow-strong">
+        <button onClick={() => openTaskForm()} className="fixed bottom-6 right-6 bg-fuchsia-500 text-white p-4 rounded-full pixel-shadow-strong">
           <Plus size={26} strokeWidth={2.5} />
         </button>
       )}
@@ -590,8 +622,8 @@ const SideQuests = () => {
       {showTaskForm && <TaskForm task={editingTask} onSave={addOrUpdateTask} onCancel={closeTaskForm} />}
 
       <style>{`
-        .font-pixel-title { font-family: 'Pixelify Sans', monospace; }
-        .font-pixel { font-family: 'Dogica Pixel', monospace; }
+        .font-pixel-title { font-family: 'Pixelify Sans', monospace; font-weight: 400; }
+        .font-pixel { font-family: 'Dogica Pixel', monospace; font-weight: 400; }
         .pixel-card { box-shadow: 4px 4px 0 0 #0f172a; }
         .pixel-shadow { box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.3); }
         .pixel-shadow-strong { box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.4); }
