@@ -120,147 +120,6 @@ const EnergyIndicator = ({ level, compact = false }) => {
   );
 };
 
-// Swipeable Task Card with mobile drag support
-const SwipeableTaskCard = ({ task, onDelete, onClick, onDragStart, onDragEnd, getDaysWaiting, isDragging }) => {
-  const [swipeX, setSwipeX] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const cardRef = useRef(null);
-  const isHorizontalSwipe = useRef(null);
-  
-  const daysWaiting = getDaysWaiting(task.createdAt);
-  const subtaskProgress = task.subtasks?.length 
-    ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100)
-    : null;
-
-  const handleTouchStart = (e) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    isHorizontalSwipe.current = null;
-    setIsSwiping(true);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isSwiping) return;
-    
-    const currentX = e.touches[0].clientX;
-    const currentY = e.touches[0].clientY;
-    const diffX = currentX - startX.current;
-    const diffY = currentY - startY.current;
-    
-    // Determine swipe direction on first significant movement
-    if (isHorizontalSwipe.current === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
-      isHorizontalSwipe.current = Math.abs(diffX) > Math.abs(diffY);
-    }
-    
-    // Only handle horizontal swipes
-    if (isHorizontalSwipe.current) {
-      e.preventDefault();
-      setSwipeX(Math.min(0, diffX)); // Only allow left swipe
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsSwiping(false);
-    if (swipeX < -100) {
-      // Delete threshold reached
-      onDelete(task.id);
-    }
-    setSwipeX(0);
-    isHorizontalSwipe.current = null;
-  };
-
-  // Long press for drag
-  const longPressTimer = useRef(null);
-  const [isLongPress, setIsLongPress] = useState(false);
-
-  const handleDragTouchStart = (e) => {
-    longPressTimer.current = setTimeout(() => {
-      setIsLongPress(true);
-      onDragStart(task);
-      if (navigator.vibrate) navigator.vibrate(50);
-    }, 300);
-  };
-
-  const handleDragTouchEnd = () => {
-    clearTimeout(longPressTimer.current);
-    if (isLongPress) {
-      setIsLongPress(false);
-      onDragEnd();
-    }
-  };
-
-  const handleDragTouchMove = (e) => {
-    if (!isLongPress) {
-      clearTimeout(longPressTimer.current);
-    }
-  };
-
-  return (
-    <div 
-      ref={cardRef}
-      className={`relative overflow-hidden rounded-xl ${isDragging ? 'opacity-50 scale-95' : ''}`}
-    >
-      {/* Delete background */}
-      <div className={`absolute inset-0 bg-red-500/30 flex items-center justify-end pr-6 transition-opacity ${swipeX < -30 ? 'opacity-100' : 'opacity-0'}`}>
-        <Trash2 size={22} className="text-red-400" />
-      </div>
-      
-      {/* Card content */}
-      <div
-        className="relative bg-gray-900/80 border border-gray-800 rounded-xl transition-transform"
-        style={{ transform: `translateX(${swipeX}px)` }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="p-4">
-          <div className="flex items-start gap-3">
-            {/* Drag handle */}
-            <div 
-              className="flex-shrink-0 p-1 -m-1 touch-none"
-              onTouchStart={handleDragTouchStart}
-              onTouchEnd={handleDragTouchEnd}
-              onTouchMove={handleDragTouchMove}
-            >
-              <GripVertical size={20} className="text-gray-600" />
-            </div>
-            
-            <div className="flex-1 min-w-0" onClick={() => !isSwiping && onClick()}>
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-base font-medium text-gray-100 leading-tight">{task.title}</h3>
-                {subtaskProgress !== null && (
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <ProgressRing progress={subtaskProgress} size={18} strokeWidth={2} />
-                    <span className="text-xs text-gray-500">{subtaskProgress}%</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2 mt-2">
-                <EnergyIndicator level={task.energy} compact />
-                
-                {task.deadline && (
-                  <span className="text-xs text-pink-400">
-                    {new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                )}
-                
-                {!task.urgent && daysWaiting > 7 && (
-                  <span className="text-xs text-fuchsia-400">
-                    ✨ Marinating
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Empty state
 const EmptyState = ({ icon: Icon, title, description, action, actionLabel }) => (
   <div className="text-center py-12 px-6">
@@ -315,9 +174,14 @@ const SideQuests = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [draggedTask, setDraggedTask] = useState(null);
-  const [dropZone, setDropZone] = useState(null);
   const textareaRef = useRef(null);
+  
+  // Drag state
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [dropTarget, setDropTarget] = useState(null); // 'urgent' or 'non-urgent'
+  const urgentSectionRef = useRef(null);
+  const nonUrgentSectionRef = useRef(null);
 
   // Check login status
   useEffect(() => {
@@ -490,20 +354,31 @@ const SideQuests = () => {
   const getDaysWaiting = (date) => Math.floor((Date.now() - new Date(date)) / (1000 * 60 * 60 * 24));
 
   // Drag handlers
-  const handleDragStart = (task) => {
-    setDraggedTask(task);
+  const handleDragMove = (clientY) => {
+    if (!draggedTask) return;
+    
+    const urgentRect = urgentSectionRef.current?.getBoundingClientRect();
+    const nonUrgentRect = nonUrgentSectionRef.current?.getBoundingClientRect();
+    
+    if (urgentRect && clientY >= urgentRect.top && clientY <= urgentRect.bottom) {
+      setDropTarget('urgent');
+    } else if (nonUrgentRect && clientY >= nonUrgentRect.top && clientY <= nonUrgentRect.bottom) {
+      setDropTarget('non-urgent');
+    } else {
+      setDropTarget(null);
+    }
   };
 
   const handleDragEnd = () => {
-    if (draggedTask && dropZone) {
-      saveTasks(tasks.map(t => t.id === draggedTask.id ? { ...t, urgent: dropZone === 'urgent' } : t));
+    if (draggedTask && dropTarget) {
+      const newUrgent = dropTarget === 'urgent';
+      if (draggedTask.urgent !== newUrgent) {
+        saveTasks(tasks.map(t => t.id === draggedTask.id ? { ...t, urgent: newUrgent } : t));
+      }
     }
     setDraggedTask(null);
-    setDropZone(null);
-  };
-
-  const handleDropZoneEnter = (zone) => {
-    if (draggedTask) setDropZone(zone);
+    setDragPosition({ x: 0, y: 0 });
+    setDropTarget(null);
   };
 
   const urgentTasks = tasks.filter(t => t.urgent && !t.completed);
@@ -631,10 +506,155 @@ const SideQuests = () => {
     );
   }
 
+  // Task Card Component (inline for drag access)
+  const TaskCard = ({ task }) => {
+    const [swipeX, setSwipeX] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const startPos = useRef({ x: 0, y: 0 });
+    const longPressTimer = useRef(null);
+    const cardRef = useRef(null);
+    
+    const daysWaiting = getDaysWaiting(task.createdAt);
+    const subtaskProgress = task.subtasks?.length 
+      ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100)
+      : null;
+
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      startPos.current = { x: touch.clientX, y: touch.clientY };
+      
+      // Start long press timer for drag
+      longPressTimer.current = setTimeout(() => {
+        setIsDragging(true);
+        setDraggedTask(task);
+        setDragPosition({ x: touch.clientX, y: touch.clientY });
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, 400);
+    };
+
+    const handleTouchMove = (e) => {
+      const touch = e.touches[0];
+      const diffX = touch.clientX - startPos.current.x;
+      const diffY = touch.clientY - startPos.current.y;
+      
+      // If dragging mode is active
+      if (isDragging || draggedTask?.id === task.id) {
+        e.preventDefault();
+        setDragPosition({ x: touch.clientX, y: touch.clientY });
+        handleDragMove(touch.clientY);
+        return;
+      }
+      
+      // Cancel long press if moved too much
+      if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
+        clearTimeout(longPressTimer.current);
+      }
+      
+      // Horizontal swipe for delete
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+        setSwipeX(Math.min(0, diffX));
+      }
+    };
+
+    const handleTouchEnd = () => {
+      clearTimeout(longPressTimer.current);
+      
+      if (isDragging || draggedTask?.id === task.id) {
+        setIsDragging(false);
+        handleDragEnd();
+        return;
+      }
+      
+      // Check if swiped enough to delete
+      if (swipeX < -100) {
+        deleteTask(task.id);
+      }
+      setSwipeX(0);
+    };
+
+    const isBeingDragged = draggedTask?.id === task.id;
+
+    return (
+      <div 
+        ref={cardRef}
+        className={`relative overflow-hidden rounded-xl touch-none ${isBeingDragged ? 'opacity-30' : ''}`}
+      >
+        {/* Delete background */}
+        <div className={`absolute inset-0 bg-red-500/30 flex items-center justify-end pr-6 transition-opacity ${swipeX < -30 ? 'opacity-100' : 'opacity-0'}`}>
+          <Trash2 size={22} className="text-red-400" />
+        </div>
+        
+        {/* Card */}
+        <div
+          className="relative bg-gray-900/80 border border-gray-800 rounded-xl"
+          style={{ transform: `translateX(${swipeX}px)` }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 p-1">
+                <GripVertical size={20} className="text-gray-600" />
+              </div>
+              
+              <div 
+                className="flex-1 min-w-0" 
+                onClick={(e) => {
+                  if (!isDragging && swipeX === 0) {
+                    openTaskDetail(task);
+                  }
+                }}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-base font-medium text-gray-100 leading-tight">{task.title}</h3>
+                  {subtaskProgress !== null && (
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <ProgressRing progress={subtaskProgress} size={18} strokeWidth={2} />
+                      <span className="text-xs text-gray-500">{subtaskProgress}%</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <EnergyIndicator level={task.energy} compact />
+                  
+                  {task.deadline && (
+                    <span className="text-xs text-pink-400">
+                      {new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                  
+                  {!task.urgent && daysWaiting > 7 && (
+                    <span className="text-xs text-fuchsia-400">✨ Marinating</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Main view
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 pb-28">
       <CelebrationOverlay show={celebration.show} message={celebration.message} />
+
+      {/* Drag ghost */}
+      {draggedTask && (
+        <div 
+          className="fixed z-50 pointer-events-none bg-gray-800 border-2 border-fuchsia-500 rounded-xl p-3 shadow-xl opacity-90"
+          style={{ 
+            left: dragPosition.x - 100, 
+            top: dragPosition.y - 30,
+            width: '200px'
+          }}
+        >
+          <p className="text-sm text-gray-100 truncate">{draggedTask.title}</p>
+        </div>
+      )}
 
       {/* Header */}
       <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/50">
@@ -748,25 +768,20 @@ const SideQuests = () => {
         <div className="px-4 py-5 space-y-6">
           {/* Urgent section */}
           <div
-            onTouchMove={() => handleDropZoneEnter('urgent')}
-            className={`transition-all rounded-xl ${dropZone === 'urgent' ? 'bg-orange-500/10 p-2' : ''}`}
+            ref={urgentSectionRef}
+            className={`transition-all rounded-xl p-2 -m-2 ${
+              dropTarget === 'urgent' ? 'bg-orange-500/20 ring-2 ring-orange-500/50' : ''
+            }`}
           >
             <SectionHeader title="Urgent" count={urgentTasks.length} color="bg-orange-500" />
             {urgentTasks.length === 0 ? (
-              <p className="text-gray-600 py-4 text-center">No urgent quests</p>
+              <p className="text-gray-600 py-4 text-center">
+                {dropTarget === 'urgent' ? 'Drop here!' : 'No urgent quests'}
+              </p>
             ) : (
               <div className="space-y-2">
                 {urgentTasks.map(task => (
-                  <SwipeableTaskCard
-                    key={task.id}
-                    task={task}
-                    onDelete={deleteTask}
-                    onClick={() => openTaskDetail(task)}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    getDaysWaiting={getDaysWaiting}
-                    isDragging={draggedTask?.id === task.id}
-                  />
+                  <TaskCard key={task.id} task={task} />
                 ))}
               </div>
             )}
@@ -774,31 +789,28 @@ const SideQuests = () => {
 
           {/* Non-urgent section */}
           <div
-            onTouchMove={() => handleDropZoneEnter('non-urgent')}
-            className={`transition-all rounded-xl ${dropZone === 'non-urgent' ? 'bg-fuchsia-500/10 p-2' : ''}`}
+            ref={nonUrgentSectionRef}
+            className={`transition-all rounded-xl p-2 -m-2 ${
+              dropTarget === 'non-urgent' ? 'bg-fuchsia-500/20 ring-2 ring-fuchsia-500/50' : ''
+            }`}
           >
             <SectionHeader title="Non-Urgent" count={nonUrgentTasks.length} color="bg-fuchsia-500" />
             {nonUrgentTasks.length === 0 ? (
-              <EmptyState
-                icon={Sparkles}
-                title="No quests yet"
-                description="Capture thoughts in Brain Dump, or add a quest directly."
-                action={() => openTaskForm()}
-                actionLabel="Add Quest"
-              />
+              dropTarget === 'non-urgent' ? (
+                <p className="text-gray-600 py-4 text-center">Drop here!</p>
+              ) : (
+                <EmptyState
+                  icon={Sparkles}
+                  title="No quests yet"
+                  description="Capture thoughts in Brain Dump, or add a quest directly."
+                  action={() => openTaskForm()}
+                  actionLabel="Add Quest"
+                />
+              )
             ) : (
               <div className="space-y-2">
                 {nonUrgentTasks.map(task => (
-                  <SwipeableTaskCard
-                    key={task.id}
-                    task={task}
-                    onDelete={deleteTask}
-                    onClick={() => openTaskDetail(task)}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    getDaysWaiting={getDaysWaiting}
-                    isDragging={draggedTask?.id === task.id}
-                  />
+                  <TaskCard key={task.id} task={task} />
                 ))}
               </div>
             )}
@@ -858,7 +870,6 @@ const TaskForm = ({ task, onSave, onCancel }) => {
   const [notes, setNotes] = useState(task?.notes || '');
   const formRef = useRef(null);
 
-  // Prevent keyboard from pushing content too high
   useEffect(() => {
     const handleResize = () => {
       if (formRef.current) {
