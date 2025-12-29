@@ -622,10 +622,10 @@ const SideQuests = () => {
         </div>
         {/* Tabs */}
         <div style={{ display: 'flex' }}>
-          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'brain-dump' ? COLORS.primary : 'transparent'}`, color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
             Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{brainDumps.length}</span>}
           </button>
-          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '16px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: `2px solid ${view === 'tasks' ? COLORS.primary : 'transparent'}`, color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
             Quests {(urgentTasks.length + nonUrgentTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: `${COLORS.primary}26`, color: COLORS.primary }}>{urgentTasks.length + nonUrgentTasks.length}</span>}
           </button>
         </div>
