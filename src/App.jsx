@@ -198,7 +198,7 @@ const LoginScreen = ({ onLogin }) => {
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ marginBottom: '32px', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><PixelSword size={48} /></div>
-        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>Side Quests</h1>
+        <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', marginBottom: '12px' }}>SIDE QUESTS</h1>
         <p style={{ color: COLORS.textMuted, fontSize: '14px' }}>Enter PIN to continue</p>
       </div>
       <div style={{ width: '100%', maxWidth: '280px' }}>
