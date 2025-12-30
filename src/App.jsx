@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, ChevronDown, ChevronUp, CheckCircle2, RotateCcw } from 'lucide-react';
 
 const COLORS = {
   primary: '#2DD4BF',
   secondary: '#FB7185',
   urgent: '#FBBF24',
   success: '#4ADE80',
-  priority: '#F87171',
+  active: '#F87171',
   overdue: '#EF4444',
   bg: '#0C1222',
   card: '#162032',
@@ -162,11 +162,11 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   );
 };
 
-const EnergyIndicator = ({ level }) => {
+const DifficultyIndicator = ({ level }) => {
   const config = {
-    low: { color: COLORS.success, label: 'Low' },
+    easy: { color: COLORS.success, label: 'Easy' },
     medium: { color: COLORS.urgent, label: 'Med' },
-    high: { color: COLORS.secondary, label: 'High' }
+    hard: { color: COLORS.secondary, label: 'Hard' }
   };
   return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
 };
@@ -262,14 +262,23 @@ const LoginScreen = ({ onLogin }) => {
 
 const TaskForm = ({ task, onSave, onCancel }) => {
   const [title, setTitle] = useState(task?.title || '');
-  const [category, setCategory] = useState(task?.category || 'backlog');
-  const [energy, setEnergy] = useState(task?.energy || 'medium');
-  const [deadline, setDeadline] = useState(task?.deadline || '');
   const [notes, setNotes] = useState(task?.notes || '');
+  const [mode, setMode] = useState(task?.mode || 'idle');
+  const [difficulty, setDifficulty] = useState(task?.difficulty || task?.energy || 'medium');
+  const [deadline, setDeadline] = useState(task?.deadline || '');
+  const titleInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!task?.id && titleInputRef.current) {
+      setTimeout(() => {
+        titleInputRef.current.focus();
+      }, 100);
+    }
+  }, [task]);
 
   const handleSave = () => {
     if (!title.trim()) return;
-    onSave({ title, category, energy, deadline, notes, subtasks: task?.subtasks || [] });
+    onSave({ title, notes, mode, difficulty, deadline, subtasks: task?.subtasks || [] });
   };
 
   const inputStyle = { width: '100%', backgroundColor: COLORS.card, padding: '14px 16px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', boxSizing: 'border-box' };
@@ -283,30 +292,37 @@ const TaskForm = ({ task, onSave, onCancel }) => {
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
           <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>What needs doing?</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Set up Roth IRA" style={inputStyle} />
+          <input 
+            ref={titleInputRef}
+            type="text" 
+            value={title} 
+            onChange={(e) => setTitle(e.target.value)} 
+            placeholder="e.g. Set up Roth IRA" 
+            style={inputStyle} 
+          />
         </div>
         <div>
-          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Priority</label>
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Notes (optional)</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." rows={3} style={{ ...inputStyle, resize: 'none' }} />
+        </div>
+        <div>
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Mode</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button type="button" onClick={() => setCategory('priority')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'priority' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'priority' ? COLORS.priority : COLORS.card, color: category === 'priority' ? 'white' : COLORS.textMuted, cursor: 'pointer' }}>Priority</button>
-            <button type="button" onClick={() => setCategory('backlog')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'backlog' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'backlog' ? COLORS.primary : COLORS.card, color: category === 'backlog' ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>Backlog</button>
+            <button type="button" onClick={() => setMode('active')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: mode === 'active' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: mode === 'active' ? COLORS.active : COLORS.card, color: mode === 'active' ? 'white' : COLORS.textMuted, cursor: 'pointer' }}>Active</button>
+            <button type="button" onClick={() => setMode('idle')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: mode === 'idle' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: mode === 'idle' ? COLORS.primary : COLORS.card, color: mode === 'idle' ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>Idle</button>
           </div>
         </div>
         <div>
-          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Energy needed</label>
+          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Difficulty</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-            {[{ level: 'low', color: COLORS.success }, { level: 'medium', color: COLORS.urgent }, { level: 'high', color: COLORS.secondary }].map(({ level, color }) => (
-              <button key={level} type="button" onClick={() => setEnergy(level)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '16px', textTransform: 'capitalize', border: energy === level ? 'none' : '1px solid ' + COLORS.border, backgroundColor: energy === level ? color : COLORS.card, color: energy === level ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>{level}</button>
+            {[{ level: 'easy', color: COLORS.success }, { level: 'medium', color: COLORS.urgent }, { level: 'hard', color: COLORS.secondary }].map(({ level, color }) => (
+              <button key={level} type="button" onClick={() => setDifficulty(level)} className="pixel-shadow" style={{ padding: '14px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', textTransform: 'capitalize', border: difficulty === level ? 'none' : '1px solid ' + COLORS.border, backgroundColor: difficulty === level ? color : COLORS.card, color: difficulty === level ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>{level === 'medium' ? 'Med' : level}</button>
             ))}
           </div>
         </div>
         <div>
           <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Deadline (optional)</label>
-          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} style={inputStyle} />
-        </div>
-        <div>
-          <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Notes (optional)</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional context..." rows={4} style={{ ...inputStyle, resize: 'none' }} />
+          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="date-input" style={{ ...inputStyle, colorScheme: 'dark' }} />
         </div>
       </div>
       <div style={{ padding: '16px', borderTop: '1px solid ' + COLORS.border, backgroundColor: COLORS.bg, flexShrink: 0 }}>
@@ -318,25 +334,25 @@ const TaskForm = ({ task, onSave, onCancel }) => {
 
 const SideQuests = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [view, setView] = useState('brain-dump');
-  const [brainDumps, setBrainDumps] = useState([]);
+  const [view, setView] = useState('intel');
+  const [intel, setIntel] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [newDump, setNewDump] = useState('');
+  const [newIntel, setNewIntel] = useState('');
   const [celebration, setCelebration] = useState({ show: false, message: '' });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [showCleared, setShowCleared] = useState(false);
   const [newSubtask, setNewSubtask] = useState('');
   const [editingNotes, setEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
   const [draggedTask, setDraggedTask] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [dropTarget, setDropTarget] = useState(null);
-  const prioritySectionRef = useRef(null);
-  const backlogSectionRef = useRef(null);
+  const activeSectionRef = useRef(null);
+  const idleSectionRef = useRef(null);
   const notesRef = useRef(null);
 
   useEffect(() => { if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true); }, []);
@@ -348,7 +364,7 @@ const SideQuests = () => {
       r.continuous = false;
       r.interimResults = false;
       r.lang = 'en-US';
-      r.onresult = (e) => setNewDump(prev => prev ? prev + ' ' + e.results[0][0].transcript : e.results[0][0].transcript);
+      r.onresult = (e) => setNewIntel(prev => prev ? prev + ' ' + e.results[0][0].transcript : e.results[0][0].transcript);
       r.onend = () => setIsListening(false);
       r.onerror = () => setIsListening(false);
       setRecognition(r);
@@ -359,19 +375,20 @@ const SideQuests = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('dictate') === 'true') {
       window.history.replaceState({}, '', window.location.pathname);
-      setView('brain-dump');
+      setView('intel');
       setTimeout(() => { if (recognition) { recognition.start(); setIsListening(true); } }, 500);
     }
   }, [recognition]);
 
   useEffect(() => {
-    const savedDumps = storage.get('side-quests-dumps');
+    const savedIntel = storage.get('side-quests-dumps');
     const savedTasks = storage.get('side-quests-tasks');
-    if (savedDumps) setBrainDumps(savedDumps);
+    if (savedIntel) setIntel(savedIntel);
     if (savedTasks) {
       const migrated = savedTasks.map(t => ({
         ...t,
-        category: t.category || (t.timeframe === 'today' || t.urgent ? 'priority' : 'backlog')
+        mode: t.mode || (t.category === 'active' || t.category === 'priority' ? 'active' : 'idle'),
+        difficulty: t.difficulty || t.energy || 'medium'
       }));
       setTasks(migrated);
     }
@@ -386,7 +403,6 @@ const SideQuests = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [showTaskForm, selectedTask]);
 
-  // Auto-resize notes textarea
   useEffect(() => {
     if (notesRef.current && editingNotes) {
       notesRef.current.style.height = 'auto';
@@ -394,7 +410,7 @@ const SideQuests = () => {
     }
   }, [tempNotes, editingNotes]);
 
-  const saveDumps = (dumps) => { setBrainDumps(dumps); storage.set('side-quests-dumps', dumps); };
+  const saveIntel = (items) => { setIntel(items); storage.set('side-quests-dumps', items); };
   const saveTasks = (t) => { setTasks(t); storage.set('side-quests-tasks', t); };
 
   const openTaskDetail = (task) => { 
@@ -407,10 +423,10 @@ const SideQuests = () => {
   const closeTaskDetail = () => window.history.back();
   const closeTaskForm = () => window.history.back();
 
-  const addBrainDump = () => {
-    if (!newDump.trim()) return;
-    saveDumps([{ id: Date.now(), text: newDump, createdAt: new Date().toISOString() }, ...brainDumps]);
-    setNewDump('');
+  const addIntel = () => {
+    if (!newIntel.trim()) return;
+    saveIntel([{ id: Date.now(), text: newIntel, createdAt: new Date().toISOString() }, ...intel]);
+    setNewIntel('');
   };
 
   const startDictation = () => {
@@ -418,21 +434,21 @@ const SideQuests = () => {
     if (isListening) recognition.stop(); else { recognition.start(); setIsListening(true); }
   };
 
-  const deleteDump = (id) => saveDumps(brainDumps.filter(d => d.id !== id));
+  const deleteIntel = (id) => saveIntel(intel.filter(d => d.id !== id));
 
-  const convertToTask = (dump) => {
-    const taskData = { title: dump.text, category: 'backlog', energy: 'medium', deadline: '', notes: '', subtasks: [] };
+  const convertToTask = (item) => {
+    const taskData = { title: item.text, mode: 'idle', difficulty: 'medium', deadline: '', notes: '', subtasks: [] };
     setEditingTask(taskData);
     openTaskForm(taskData);
-    deleteDump(dump.id);
+    deleteIntel(item.id);
   };
 
   const addOrUpdateTask = (taskData) => {
     if (editingTask?.id) {
       saveTasks(tasks.map(t => t.id === editingTask.id ? { ...taskData, id: editingTask.id, completed: t.completed, createdAt: t.createdAt, order: t.order } : t));
     } else {
-      const categoryTasks = tasks.filter(t => t.category === taskData.category && !t.completed);
-      const maxOrder = categoryTasks.length > 0 ? Math.max(...categoryTasks.map(t => t.order || 0)) : 0;
+      const modeTasks = tasks.filter(t => t.mode === taskData.mode && !t.completed);
+      const maxOrder = modeTasks.length > 0 ? Math.max(...modeTasks.map(t => t.order || 0)) : 0;
       saveTasks([{ ...taskData, id: Date.now(), completed: false, createdAt: new Date().toISOString(), order: maxOrder + 1 }, ...tasks]);
     }
     setShowTaskForm(false);
@@ -449,6 +465,10 @@ const SideQuests = () => {
       setCelebration({ show: true, message: 'Quest Complete!' });
       setTimeout(() => setCelebration({ show: false, message: '' }), 2000);
     }
+  };
+
+  const restoreTask = (id) => {
+    saveTasks(tasks.map(t => t.id === id ? { ...t, completed: false, completedAt: null } : t));
   };
 
   const toggleSubtask = (taskId, subtaskIndex) => {
@@ -486,26 +506,26 @@ const SideQuests = () => {
     if (selectedTask?.id === id) setSelectedTask(null); 
   };
 
-  const clearCompleted = () => saveTasks(tasks.filter(t => !t.completed));
+  const clearCleared = () => saveTasks(tasks.filter(t => !t.completed));
 
   const handleDragMove = (clientY) => {
     if (!draggedTask) return;
-    const priorityRect = prioritySectionRef.current?.getBoundingClientRect();
-    const backlogRect = backlogSectionRef.current?.getBoundingClientRect();
-    if (priorityRect && clientY >= priorityRect.top && clientY <= priorityRect.bottom) {
-      setDropTarget('priority');
-    } else if (backlogRect && clientY >= backlogRect.top && clientY <= backlogRect.bottom) {
-      setDropTarget('backlog');
+    const activeRect = activeSectionRef.current?.getBoundingClientRect();
+    const idleRect = idleSectionRef.current?.getBoundingClientRect();
+    if (activeRect && clientY >= activeRect.top && clientY <= activeRect.bottom) {
+      setDropTarget('active');
+    } else if (idleRect && clientY >= idleRect.top && clientY <= idleRect.bottom) {
+      setDropTarget('idle');
     } else {
       setDropTarget(null);
     }
   };
 
   const handleDragEnd = () => {
-    if (draggedTask && dropTarget && draggedTask.category !== dropTarget) {
-      const categoryTasks = tasks.filter(t => t.category === dropTarget && !t.completed);
-      const maxOrder = categoryTasks.length > 0 ? Math.max(...categoryTasks.map(t => t.order || 0)) : 0;
-      saveTasks(tasks.map(t => t.id === draggedTask.id ? { ...t, category: dropTarget, order: maxOrder + 1 } : t));
+    if (draggedTask && dropTarget && draggedTask.mode !== dropTarget) {
+      const modeTasks = tasks.filter(t => t.mode === dropTarget && !t.completed);
+      const maxOrder = modeTasks.length > 0 ? Math.max(...modeTasks.map(t => t.order || 0)) : 0;
+      saveTasks(tasks.map(t => t.id === draggedTask.id ? { ...t, mode: dropTarget, order: maxOrder + 1 } : t));
     }
     setDraggedTask(null);
     setDragPosition({ x: 0, y: 0 });
@@ -513,9 +533,9 @@ const SideQuests = () => {
   };
 
   const activeTasks = tasks.filter(t => !t.completed);
-  const priorityTasks = activeTasks.filter(t => t.category === 'priority').sort((a, b) => (a.order || 0) - (b.order || 0));
-  const backlogTasks = activeTasks.filter(t => t.category === 'backlog').sort((a, b) => (a.order || 0) - (b.order || 0));
-  const completedTasks = tasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+  const activeQuests = activeTasks.filter(t => t.mode === 'active').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const idleQuests = activeTasks.filter(t => t.mode === 'idle').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const clearedTasks = tasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 
   const TaskCard = ({ task }) => {
     const [swipeX, setSwipeX] = useState(0);
@@ -551,7 +571,11 @@ const SideQuests = () => {
       }
       if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) clearTimeout(longPressTimer.current);
       if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
-        setSwipeX(Math.max(-120, Math.min(120, diffX)));
+        if (task.completed) {
+          setSwipeX(Math.max(0, Math.min(120, diffX)));
+        } else {
+          setSwipeX(Math.max(-120, Math.min(120, diffX)));
+        }
       }
     };
 
@@ -559,8 +583,12 @@ const SideQuests = () => {
       clearTimeout(longPressTimer.current);
       if (isDragging || draggedTask?.id === task.id) { setIsDragging(false); handleDragEnd(); return; }
       if (swipeX > 80) {
-        completeTask(task.id);
-      } else if (swipeX < -80) {
+        if (task.completed) {
+          restoreTask(task.id);
+        } else {
+          completeTask(task.id);
+        }
+      } else if (swipeX < -80 && !task.completed) {
         deleteTask(task.id);
       }
       setSwipeX(0);
@@ -568,14 +596,14 @@ const SideQuests = () => {
 
     return (
       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '4px', touchAction: 'pan-y', opacity: isBeingDragged ? 0.3 : 1 }}>
-        {/* Complete action (right swipe) */}
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(74, 222, 128, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '24px', opacity: swipeX > 30 ? 1 : 0, transition: 'opacity 0.2s' }}>
-          <CheckCircle2 size={24} color={COLORS.success} />
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: task.completed ? 'rgba(45, 212, 191, 0.3)' : 'rgba(74, 222, 128, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '24px', opacity: swipeX > 30 ? 1 : 0, transition: 'opacity 0.2s' }}>
+          {task.completed ? <RotateCcw size={22} color={COLORS.primary} /> : <CheckCircle2 size={24} color={COLORS.success} />}
         </div>
-        {/* Delete action (left swipe) */}
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '24px', opacity: swipeX < -30 ? 1 : 0, transition: 'opacity 0.2s' }}>
-          <Trash2 size={22} color="#f87171" />
-        </div>
+        {!task.completed && (
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '24px', opacity: swipeX < -30 ? 1 : 0, transition: 'opacity 0.2s' }}>
+            <Trash2 size={22} color="#f87171" />
+          </div>
+        )}
         <div
           className={'pixel-card' + (task.completed ? ' task-completed-card' : '')}
           style={{ position: 'relative', backgroundColor: COLORS.card, borderRadius: '4px', border: '1px solid ' + (task.completed ? COLORS.success + '40' : COLORS.border), transform: 'translateX(' + swipeX + 'px)', transition: swipeX === 0 ? 'transform 0.2s' : 'none' }}
@@ -598,9 +626,9 @@ const SideQuests = () => {
                 </div>
                 {!task.completed && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-                    <EnergyIndicator level={task.energy} />
+                    <DifficultyIndicator level={task.difficulty || 'medium'} />
                     <DeadlineIndicator deadline={task.deadline} />
-                    {task.category === 'backlog' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>Marinating</span>}
+                    {task.mode === 'idle' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>Marinating</span>}
                   </div>
                 )}
               </div>
@@ -631,8 +659,8 @@ const SideQuests = () => {
           <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
             <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0, marginBottom: '16px' }}>{currentTask.title}</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.category === 'priority' ? COLORS.priority : COLORS.primary, backgroundColor: (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '26', border: '1px solid ' + (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '4d' }}>{currentTask.category === 'priority' ? 'Priority' : 'Backlog'}</span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent, backgroundColor: (currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent) + '26', border: '1px solid ' + (currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent) + '4d' }}>{currentTask.energy} energy</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.mode === 'active' ? COLORS.active : COLORS.primary, backgroundColor: (currentTask.mode === 'active' ? COLORS.active : COLORS.primary) + '26', border: '1px solid ' + (currentTask.mode === 'active' ? COLORS.active : COLORS.primary) + '4d' }}>{currentTask.mode === 'active' ? 'Active' : 'Idle'}</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: (currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent, backgroundColor: ((currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent) + '26', border: '1px solid ' + ((currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent) + '4d' }}>{(currentTask.difficulty || 'medium') === 'medium' ? 'Med' : currentTask.difficulty}</span>
               {currentTask.deadline && (
                 <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary, backgroundColor: (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '26', border: '1px solid ' + (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '4d' }}>
                   {formatDeadline(currentTask.deadline)}
@@ -714,40 +742,40 @@ const SideQuests = () => {
         </div>
       )}
       <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: '1px solid ' + COLORS.border }}>
-        <div style={{ padding: '16px 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ padding: '16px 16px 16px 12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <PixelSword size={32} />
             <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>SIDE QUESTS</h1>
           </div>
         </div>
         <div style={{ display: 'flex' }}>
-          <button onClick={() => setView('brain-dump')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: '2px solid ' + (view === 'brain-dump' ? COLORS.primary : 'transparent'), color: view === 'brain-dump' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Brain Dump {brainDumps.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{brainDumps.length}</span>}
+          <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: '2px solid ' + (view === 'intel' ? COLORS.primary : 'transparent'), color: view === 'intel' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
+            Intel {intel.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{intel.length}</span>}
           </button>
           <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: '2px solid ' + (view === 'tasks' ? COLORS.primary : 'transparent'), color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Quests {(priorityTasks.length + backlogTasks.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{priorityTasks.length + backlogTasks.length}</span>}
+            Quests {(activeQuests.length + idleQuests.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{activeQuests.length + idleQuests.length}</span>}
           </button>
         </div>
       </div>
-      {view === 'brain-dump' && (
+      {view === 'intel' && (
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
             <div style={{ position: 'relative' }}>
-              <textarea value={newDump} onChange={(e) => setNewDump(e.target.value)} placeholder="What's on your mind?" rows={3} style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', paddingRight: '56px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+              <textarea value={newIntel} onChange={(e) => setNewIntel(e.target.value)} placeholder="What's on your mind?" rows={3} style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', paddingRight: '56px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
               <button onClick={startDictation} className="pixel-shadow" style={{ position: 'absolute', right: '12px', bottom: '12px', padding: '10px', borderRadius: '4px', backgroundColor: isListening ? '#ef4444' : COLORS.card, border: 'none', cursor: 'pointer' }}><Mic size={20} color={isListening ? 'white' : COLORS.textMuted} /></button>
             </div>
-            <button onClick={addBrainDump} disabled={!newDump.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '14px', borderRadius: '4px', fontWeight: 600, fontSize: '16px', border: 'none', opacity: !newDump.trim() ? 0.4 : 1, cursor: !newDump.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
+            <button onClick={addIntel} disabled={!newIntel.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '14px', borderRadius: '4px', fontWeight: 600, fontSize: '16px', border: 'none', opacity: !newIntel.trim() ? 0.4 : 1, cursor: !newIntel.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
           </div>
-          {brainDumps.length === 0 ? (
+          {intel.length === 0 ? (
             <EmptyState icon={PixelScroll} description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {brainDumps.map((dump) => (
-                <div key={dump.id} className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
-                  <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '14px', margin: '0 0 12px 0' }}>{dump.text}</p>
+              {intel.map((item) => (
+                <div key={item.id} className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
+                  <p style={{ color: COLORS.text, marginBottom: '12px', fontSize: '14px', margin: '0 0 12px 0' }}>{item.text}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => convertToTask(dump)} className="pixel-shadow" style={{ flex: 1, backgroundColor: COLORS.secondary + '26', color: COLORS.secondary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
-                    <button onClick={() => deleteDump(dump.id)} className="pixel-shadow" style={{ padding: '10px 16px', backgroundColor: COLORS.card, border: '1px solid ' + COLORS.border, borderRadius: '4px', cursor: 'pointer' }}><Trash2 size={18} color={COLORS.textMuted} /></button>
+                    <button onClick={() => convertToTask(item)} className="pixel-shadow" style={{ flex: 1, backgroundColor: COLORS.secondary + '26', color: COLORS.secondary, padding: '10px', borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Turn into Quest</button>
+                    <button onClick={() => deleteIntel(item.id)} className="pixel-shadow" style={{ padding: '10px 16px', backgroundColor: COLORS.card, border: '1px solid ' + COLORS.border, borderRadius: '4px', cursor: 'pointer' }}><Trash2 size={18} color={COLORS.textMuted} /></button>
                   </div>
                 </div>
               ))}
@@ -757,33 +785,34 @@ const SideQuests = () => {
       )}
       {view === 'tasks' && (
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <div ref={prioritySectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'priority' ? COLORS.priority + '26' : 'transparent', boxShadow: dropTarget === 'priority' ? '0 0 0 2px ' + COLORS.priority + '80' : 'none' }}>
-            <SectionHeader title="Priority" count={priorityTasks.length} color={COLORS.priority} />
-            {priorityTasks.length === 0 ? (
-              <p style={{ color: COLORS.textMuted, padding: '10px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'priority' ? 'Drop here!' : 'No priority quests'}</p>
+          <div ref={activeSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'active' ? COLORS.active + '26' : 'transparent', boxShadow: dropTarget === 'active' ? '0 0 0 2px ' + COLORS.active + '80' : 'none' }}>
+            <SectionHeader title="Active" count={activeQuests.length} color={COLORS.active} />
+            {activeQuests.length === 0 ? (
+              <p style={{ color: COLORS.textMuted, padding: '10px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'active' ? 'Drop here!' : 'No active quests'}</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{priorityTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{activeQuests.map(task => <TaskCard key={task.id} task={task} />)}</div>
             )}
           </div>
-          <div ref={backlogSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'backlog' ? COLORS.primary + '26' : 'transparent', boxShadow: dropTarget === 'backlog' ? '0 0 0 2px ' + COLORS.primary + '80' : 'none' }}>
-            <SectionHeader title="Backlog" count={backlogTasks.length} color={COLORS.primary} />
-            {backlogTasks.length === 0 ? (
-              dropTarget === 'backlog' ? (
+          <div ref={idleSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'idle' ? COLORS.primary + '26' : 'transparent', boxShadow: dropTarget === 'idle' ? '0 0 0 2px ' + COLORS.primary + '80' : 'none' }}>
+            <SectionHeader title="Idle" count={idleQuests.length} color={COLORS.primary} />
+            {idleQuests.length === 0 ? (
+              dropTarget === 'idle' ? (
                 <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>Drop here!</p>
               ) : (
                 <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />
               )
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{backlogTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{idleQuests.map(task => <TaskCard key={task.id} task={task} />)}</div>
             )}
           </div>
-          {completedTasks.length > 0 && (
+          {clearedTasks.length > 0 && (
             <div>
-              <SectionHeader title="Completed" count={completedTasks.length} color={COLORS.success} collapsible collapsed={!showCompleted} onToggle={() => setShowCompleted(!showCompleted)} />
-              {showCompleted && (
+              <SectionHeader title="Cleared" count={clearedTasks.length} color={COLORS.success} collapsible collapsed={!showCleared} onToggle={() => setShowCleared(!showCleared)} />
+              {showCleared && (
                 <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>{completedTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
-                  <button onClick={clearCompleted} style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', color: COLORS.textMuted, border: '1px dashed ' + COLORS.border, borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>Clear Completed</button>
+                  <p style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '12px', marginTop: '-8px' }}>Swipe right to restore</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>{clearedTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
+                  <button onClick={clearCleared} style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', color: COLORS.textMuted, border: '1px dashed ' + COLORS.border, borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>Clear All</button>
                 </>
               )}
             </div>
@@ -824,6 +853,7 @@ const SideQuests = () => {
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .animate-shake { animation: shake 0.3s ease-in-out; }
         body, html { overflow-x: hidden; }
+        .date-input::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
       `}</style>
     </div>
   );
