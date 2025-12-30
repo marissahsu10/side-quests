@@ -162,13 +162,20 @@ const ProgressRing = ({ progress, size = 20, strokeWidth = 2 }) => {
   );
 };
 
-const DifficultyIndicator = ({ level }) => {
+const getDifficultyConfig = (level) => {
   const config = {
     easy: { color: COLORS.success, label: 'Easy' },
     medium: { color: COLORS.urgent, label: 'Med' },
-    hard: { color: COLORS.secondary, label: 'Hard' }
+    hard: { color: COLORS.secondary, label: 'Hard' },
+    low: { color: COLORS.success, label: 'Easy' },
+    high: { color: COLORS.secondary, label: 'Hard' }
   };
-  return <span style={{ fontSize: '12px', color: config[level].color }}>{config[level].label}</span>;
+  return config[level] || config.medium;
+};
+
+const DifficultyIndicator = ({ level }) => {
+  const cfg = getDifficultyConfig(level);
+  return <span style={{ fontSize: '12px', color: cfg.color }}>{cfg.label}</span>;
 };
 
 const DeadlineIndicator = ({ deadline }) => {
@@ -385,11 +392,20 @@ const SideQuests = () => {
     const savedTasks = storage.get('side-quests-tasks');
     if (savedIntel) setIntel(savedIntel);
     if (savedTasks) {
-      const migrated = savedTasks.map(t => ({
-        ...t,
-        mode: t.mode || (t.category === 'active' || t.category === 'priority' ? 'active' : 'idle'),
-        difficulty: t.difficulty || t.energy || 'medium'
-      }));
+      const migrated = savedTasks.map(t => {
+        let newMode = t.mode;
+        if (!newMode) {
+          if (t.category === 'active' || t.category === 'priority') newMode = 'active';
+          else newMode = 'idle';
+        }
+        let newDifficulty = t.difficulty;
+        if (!newDifficulty) {
+          if (t.energy === 'low') newDifficulty = 'easy';
+          else if (t.energy === 'high') newDifficulty = 'hard';
+          else newDifficulty = 'medium';
+        }
+        return { ...t, mode: newMode, difficulty: newDifficulty };
+      });
       setTasks(migrated);
     }
   }, []);
@@ -474,7 +490,7 @@ const SideQuests = () => {
   const toggleSubtask = (taskId, subtaskIndex) => {
     saveTasks(tasks.map(t => {
       if (t.id === taskId) {
-        const newSubtasks = [...t.subtasks];
+        const newSubtasks = [...(t.subtasks || [])];
         newSubtasks[subtaskIndex] = { ...newSubtasks[subtaskIndex], completed: !newSubtasks[subtaskIndex].completed };
         if (newSubtasks.every(s => s.completed) && newSubtasks.length > 0) {
           setCelebration({ show: true, message: 'All steps done!' });
@@ -493,7 +509,7 @@ const SideQuests = () => {
   };
 
   const deleteSubtask = (taskId, subtaskIndex) => {
-    saveTasks(tasks.map(t => t.id === taskId ? { ...t, subtasks: t.subtasks.filter((_, i) => i !== subtaskIndex) } : t));
+    saveTasks(tasks.map(t => t.id === taskId ? { ...t, subtasks: (t.subtasks || []).filter((_, i) => i !== subtaskIndex) } : t));
   };
 
   const saveNotes = (taskId) => {
@@ -535,7 +551,7 @@ const SideQuests = () => {
   const activeTasks = tasks.filter(t => !t.completed);
   const activeQuests = activeTasks.filter(t => t.mode === 'active').sort((a, b) => (a.order || 0) - (b.order || 0));
   const idleQuests = activeTasks.filter(t => t.mode === 'idle').sort((a, b) => (a.order || 0) - (b.order || 0));
-  const clearedTasks = tasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+  const clearedTasks = tasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
 
   const TaskCard = ({ task }) => {
     const [swipeX, setSwipeX] = useState(0);
@@ -543,7 +559,7 @@ const SideQuests = () => {
     const startPos = useRef({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
     const daysWaiting = getDaysWaiting(task.createdAt);
-    const subtaskProgress = task.subtasks?.length ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100) : null;
+    const subtaskProgress = (task.subtasks && task.subtasks.length) ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100) : null;
     const isBeingDragged = draggedTask?.id === task.id;
 
     const handleTouchStart = (e) => {
@@ -626,7 +642,7 @@ const SideQuests = () => {
                 </div>
                 {!task.completed && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-                    <DifficultyIndicator level={task.difficulty || 'medium'} />
+                    <DifficultyIndicator level={task.difficulty} />
                     <DeadlineIndicator deadline={task.deadline} />
                     {task.mode === 'idle' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>Marinating</span>}
                   </div>
@@ -643,7 +659,8 @@ const SideQuests = () => {
 
   if (selectedTask) {
     const currentTask = tasks.find(t => t.id === selectedTask.id) || selectedTask;
-    const subtaskProgress = currentTask.subtasks?.length ? Math.round((currentTask.subtasks.filter(s => s.completed).length / currentTask.subtasks.length) * 100) : 0;
+    const subtaskProgress = (currentTask.subtasks && currentTask.subtasks.length) ? Math.round((currentTask.subtasks.filter(s => s.completed).length / currentTask.subtasks.length) * 100) : 0;
+    const diffCfg = getDifficultyConfig(currentTask.difficulty);
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, overflow: 'hidden' }}>
@@ -660,7 +677,7 @@ const SideQuests = () => {
             <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0, marginBottom: '16px' }}>{currentTask.title}</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.mode === 'active' ? COLORS.active : COLORS.primary, backgroundColor: (currentTask.mode === 'active' ? COLORS.active : COLORS.primary) + '26', border: '1px solid ' + (currentTask.mode === 'active' ? COLORS.active : COLORS.primary) + '4d' }}>{currentTask.mode === 'active' ? 'Active' : 'Idle'}</span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: (currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent, backgroundColor: ((currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent) + '26', border: '1px solid ' + ((currentTask.difficulty || 'medium') === 'easy' ? COLORS.success : (currentTask.difficulty || 'medium') === 'hard' ? COLORS.secondary : COLORS.urgent) + '4d' }}>{(currentTask.difficulty || 'medium') === 'medium' ? 'Med' : currentTask.difficulty}</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: diffCfg.color, backgroundColor: diffCfg.color + '26', border: '1px solid ' + diffCfg.color + '4d' }}>{diffCfg.label}</span>
               {currentTask.deadline && (
                 <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary, backgroundColor: (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '26', border: '1px solid ' + (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '4d' }}>
                   {formatDeadline(currentTask.deadline)}
@@ -694,18 +711,18 @@ const SideQuests = () => {
           <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <h3 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>Steps</h3>
-              {currentTask.subtasks?.length > 0 && (
+              {currentTask.subtasks && currentTask.subtasks.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <ProgressRing progress={subtaskProgress} size={24} strokeWidth={2.5} />
                   <span style={{ fontSize: '14px', color: COLORS.textMuted }}>{subtaskProgress}%</span>
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: currentTask.subtasks?.length ? '16px' : '0' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: (currentTask.subtasks && currentTask.subtasks.length) ? '16px' : '0' }}>
               <input type="text" value={newSubtask} onChange={(e) => setNewSubtask(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') addSubtask(currentTask.id, newSubtask); }} placeholder="Add a step..." style={{ flex: 1, backgroundColor: COLORS.bg, padding: '12px', color: COLORS.text, fontSize: '14px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', boxSizing: 'border-box' }} />
               <button onClick={() => addSubtask(currentTask.id, newSubtask)} disabled={!newSubtask.trim()} className="pixel-shadow" style={{ padding: '12px 16px', backgroundColor: newSubtask.trim() ? COLORS.primary : COLORS.card, color: newSubtask.trim() ? COLORS.bg : COLORS.textMuted, borderRadius: '4px', border: 'none', cursor: newSubtask.trim() ? 'pointer' : 'default' }}><Plus size={20} /></button>
             </div>
-            {currentTask.subtasks?.length > 0 && (
+            {currentTask.subtasks && currentTask.subtasks.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {currentTask.subtasks.map((subtask, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: COLORS.bg, borderRadius: '4px' }}>
@@ -718,7 +735,7 @@ const SideQuests = () => {
                 ))}
               </div>
             )}
-            {!currentTask.subtasks?.length && (
+            {(!currentTask.subtasks || currentTask.subtasks.length === 0) && (
               <div style={{ textAlign: 'center', paddingTop: '16px' }}>
                 <button className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
                   <Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down
