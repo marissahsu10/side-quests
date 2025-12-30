@@ -83,31 +83,15 @@ const PixelFire = ({ size = 16 }) => (
   </svg>
 );
 
-const TaskCheckbox = ({ checked, onToggle, size = 24 }) => (
-  <button
-    onClick={onToggle}
-    style={{
-      width: size,
-      height: size,
-      borderRadius: '50%',
-      border: checked ? 'none' : `2px solid ${COLORS.textMuted}`,
-      backgroundColor: checked ? COLORS.success : 'transparent',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      padding: 0,
-      flexShrink: 0,
-      transition: 'all 0.2s ease'
-    }}
-    className={checked ? 'check-pop' : ''}
-  >
-    {checked && (
-      <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none">
-        <path d="M5 12l5 5L19 7" stroke={COLORS.bg} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    )}
-  </button>
+const PixelCheck = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
+    <rect x="12" y="2" width="2" height="2" fill={COLORS.success}/>
+    <rect x="10" y="4" width="2" height="2" fill={COLORS.success}/>
+    <rect x="8" y="6" width="2" height="2" fill={COLORS.success}/>
+    <rect x="6" y="8" width="2" height="2" fill={COLORS.success}/>
+    <rect x="4" y="6" width="2" height="2" fill={COLORS.success}/>
+    <rect x="2" y="4" width="2" height="2" fill={COLORS.success}/>
+  </svg>
 );
 
 const storage = {
@@ -210,12 +194,17 @@ const DeadlineIndicator = ({ deadline }) => {
   return <span style={{ fontSize: '12px', color: COLORS.secondary }}>{formatted}</span>;
 };
 
-const SectionHeader = ({ title, count, color }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+const SectionHeader = ({ title, count, color, collapsible, collapsed, onToggle }) => (
+  <button 
+    onClick={onToggle}
+    disabled={!collapsible}
+    style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: 0 }}
+  >
     <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: color }} />
     <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
     <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
-  </div>
+    {collapsible && (collapsed ? <ChevronDown size={16} color={COLORS.textMuted} /> : <ChevronUp size={16} color={COLORS.textMuted} />)}
+  </button>
 );
 
 const EmptyState = ({ icon: Icon, description, action, actionLabel }) => (
@@ -262,26 +251,10 @@ const LoginScreen = ({ onLogin }) => {
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="••••"
           className={error ? 'animate-shake' : ''}
-          style={{ 
-            width: '100%', textAlign: 'center', fontSize: '24px', letterSpacing: '0.5em',
-            backgroundColor: COLORS.card, padding: '16px', color: COLORS.text,
-            borderRadius: '4px', border: '2px solid ' + (error ? '#ef4444' : COLORS.border),
-            outline: 'none', boxSizing: 'border-box'
-          }}
+          style={{ width: '100%', textAlign: 'center', fontSize: '24px', letterSpacing: '0.5em', backgroundColor: COLORS.card, padding: '16px', color: COLORS.text, borderRadius: '4px', border: '2px solid ' + (error ? '#ef4444' : COLORS.border), outline: 'none', boxSizing: 'border-box' }}
           autoFocus
         />
-        <button
-          onClick={handleSubmit}
-          disabled={pin.length < 4}
-          className="pixel-shadow"
-          style={{ 
-            marginTop: '16px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg,
-            padding: '16px', borderRadius: '4px', fontWeight: 600, border: 'none',
-            opacity: pin.length < 4 ? 0.4 : 1, cursor: pin.length < 4 ? 'default' : 'pointer'
-          }}
-        >
-          Unlock
-        </button>
+        <button onClick={handleSubmit} disabled={pin.length < 4} className="pixel-shadow" style={{ marginTop: '16px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '4px', fontWeight: 600, border: 'none', opacity: pin.length < 4 ? 0.4 : 1, cursor: pin.length < 4 ? 'default' : 'pointer' }}>Unlock</button>
       </div>
     </div>
   );
@@ -299,11 +272,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
     onSave({ title, category, energy, deadline, notes, subtasks: task?.subtasks || [] });
   };
 
-  const inputStyle = {
-    width: '100%', backgroundColor: COLORS.card, padding: '14px 16px',
-    color: COLORS.text, fontSize: '16px', borderRadius: '4px',
-    border: '1px solid ' + COLORS.border, outline: 'none', boxSizing: 'border-box'
-  };
+  const inputStyle = { width: '100%', backgroundColor: COLORS.card, padding: '14px 16px', color: COLORS.text, fontSize: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', boxSizing: 'border-box' };
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: COLORS.bg, zIndex: 50, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -319,8 +288,8 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         <div>
           <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '14px' }}>Priority</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button type="button" onClick={() => setCategory('priority')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'priority' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'priority' ? COLORS.priority : COLORS.card, color: category === 'priority' ? 'white' : COLORS.textMuted, cursor: 'pointer' }}>🔥 Priority</button>
-            <button type="button" onClick={() => setCategory('backlog')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'backlog' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'backlog' ? COLORS.primary : COLORS.card, color: category === 'backlog' ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>📋 Backlog</button>
+            <button type="button" onClick={() => setCategory('priority')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'priority' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'priority' ? COLORS.priority : COLORS.card, color: category === 'priority' ? 'white' : COLORS.textMuted, cursor: 'pointer' }}>Priority</button>
+            <button type="button" onClick={() => setCategory('backlog')} className="pixel-shadow" style={{ padding: '14px 8px', borderRadius: '4px', fontWeight: 500, fontSize: '14px', border: category === 'backlog' ? 'none' : '1px solid ' + COLORS.border, backgroundColor: category === 'backlog' ? COLORS.primary : COLORS.card, color: category === 'backlog' ? COLORS.bg : COLORS.textMuted, cursor: 'pointer' }}>Backlog</button>
           </div>
         </div>
         <div>
@@ -359,7 +328,7 @@ const SideQuests = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [showArchive, setShowArchive] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [newSubtask, setNewSubtask] = useState('');
   const [editingNotes, setEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
@@ -368,6 +337,7 @@ const SideQuests = () => {
   const [dropTarget, setDropTarget] = useState(null);
   const prioritySectionRef = useRef(null);
   const backlogSectionRef = useRef(null);
+  const notesRef = useRef(null);
 
   useEffect(() => { if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true); }, []);
 
@@ -416,6 +386,14 @@ const SideQuests = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [showTaskForm, selectedTask]);
 
+  // Auto-resize notes textarea
+  useEffect(() => {
+    if (notesRef.current && editingNotes) {
+      notesRef.current.style.height = 'auto';
+      notesRef.current.style.height = notesRef.current.scrollHeight + 'px';
+    }
+  }, [tempNotes, editingNotes]);
+
   const saveDumps = (dumps) => { setBrainDumps(dumps); storage.set('side-quests-dumps', dumps); };
   const saveTasks = (t) => { setTasks(t); storage.set('side-quests-tasks', t); };
 
@@ -451,11 +429,11 @@ const SideQuests = () => {
 
   const addOrUpdateTask = (taskData) => {
     if (editingTask?.id) {
-      saveTasks(tasks.map(t => t.id === editingTask.id ? { ...taskData, id: editingTask.id, completed: t.completed, archived: t.archived, createdAt: t.createdAt, order: t.order } : t));
+      saveTasks(tasks.map(t => t.id === editingTask.id ? { ...taskData, id: editingTask.id, completed: t.completed, createdAt: t.createdAt, order: t.order } : t));
     } else {
-      const categoryTasks = tasks.filter(t => t.category === taskData.category && !t.completed && !t.archived);
+      const categoryTasks = tasks.filter(t => t.category === taskData.category && !t.completed);
       const maxOrder = categoryTasks.length > 0 ? Math.max(...categoryTasks.map(t => t.order || 0)) : 0;
-      saveTasks([{ ...taskData, id: Date.now(), completed: false, archived: false, createdAt: new Date().toISOString(), order: maxOrder + 1 }, ...tasks]);
+      saveTasks([{ ...taskData, id: Date.now(), completed: false, createdAt: new Date().toISOString(), order: maxOrder + 1 }, ...tasks]);
     }
     setShowTaskForm(false);
     setEditingTask(null);
@@ -472,9 +450,6 @@ const SideQuests = () => {
       setTimeout(() => setCelebration({ show: false, message: '' }), 2000);
     }
   };
-
-  const archiveTask = (id) => saveTasks(tasks.map(t => t.id === id ? { ...t, archived: true } : t));
-  const unarchiveTask = (id) => saveTasks(tasks.map(t => t.id === id ? { ...t, archived: false, completed: false } : t));
 
   const toggleSubtask = (taskId, subtaskIndex) => {
     saveTasks(tasks.map(t => {
@@ -511,7 +486,7 @@ const SideQuests = () => {
     if (selectedTask?.id === id) setSelectedTask(null); 
   };
 
-  const clearArchived = () => saveTasks(tasks.filter(t => !t.archived));
+  const clearCompleted = () => saveTasks(tasks.filter(t => !t.completed));
 
   const handleDragMove = (clientY) => {
     if (!draggedTask) return;
@@ -528,7 +503,7 @@ const SideQuests = () => {
 
   const handleDragEnd = () => {
     if (draggedTask && dropTarget && draggedTask.category !== dropTarget) {
-      const categoryTasks = tasks.filter(t => t.category === dropTarget && !t.completed && !t.archived);
+      const categoryTasks = tasks.filter(t => t.category === dropTarget && !t.completed);
       const maxOrder = categoryTasks.length > 0 ? Math.max(...categoryTasks.map(t => t.order || 0)) : 0;
       saveTasks(tasks.map(t => t.id === draggedTask.id ? { ...t, category: dropTarget, order: maxOrder + 1 } : t));
     }
@@ -537,11 +512,10 @@ const SideQuests = () => {
     setDropTarget(null);
   };
 
-  const activeTasks = tasks.filter(t => !t.archived);
-  const priorityTasks = activeTasks.filter(t => t.category === 'priority' && !t.completed).sort((a, b) => (a.order || 0) - (b.order || 0));
-  const backlogTasks = activeTasks.filter(t => t.category === 'backlog' && !t.completed).sort((a, b) => (a.order || 0) - (b.order || 0));
-  const completedTasks = activeTasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
-  const archivedTasks = tasks.filter(t => t.archived);
+  const activeTasks = tasks.filter(t => !t.completed);
+  const priorityTasks = activeTasks.filter(t => t.category === 'priority').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const backlogTasks = activeTasks.filter(t => t.category === 'backlog').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const completedTasks = tasks.filter(t => t.completed).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 
   const TaskCard = ({ task }) => {
     const [swipeX, setSwipeX] = useState(0);
@@ -585,8 +559,7 @@ const SideQuests = () => {
       clearTimeout(longPressTimer.current);
       if (isDragging || draggedTask?.id === task.id) { setIsDragging(false); handleDragEnd(); return; }
       if (swipeX > 80) {
-        if (task.completed) archiveTask(task.id);
-        else completeTask(task.id);
+        completeTask(task.id);
       } else if (swipeX < -80) {
         deleteTask(task.id);
       }
@@ -595,9 +568,11 @@ const SideQuests = () => {
 
     return (
       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '4px', touchAction: 'pan-y', opacity: isBeingDragged ? 0.3 : 1 }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: task.completed ? 'rgba(45, 212, 191, 0.3)' : 'rgba(74, 222, 128, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '24px', opacity: swipeX > 30 ? 1 : 0, transition: 'opacity 0.2s' }}>
-          {task.completed ? <span style={{ color: COLORS.primary, fontWeight: 500 }}>Archive</span> : <CheckCircle2 size={24} color={COLORS.success} />}
+        {/* Complete action (right swipe) */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(74, 222, 128, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '24px', opacity: swipeX > 30 ? 1 : 0, transition: 'opacity 0.2s' }}>
+          <CheckCircle2 size={24} color={COLORS.success} />
         </div>
+        {/* Delete action (left swipe) */}
         <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '24px', opacity: swipeX < -30 ? 1 : 0, transition: 'opacity 0.2s' }}>
           <Trash2 size={22} color="#f87171" />
         </div>
@@ -608,10 +583,9 @@ const SideQuests = () => {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div style={{ padding: '16px' }}>
+          <div style={{ padding: '16px' }} onClick={() => { if (!isDragging && swipeX === 0 && !task.completed) openTaskDetail(task); }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <TaskCheckbox checked={task.completed} onToggle={(e) => { e?.stopPropagation(); completeTask(task.id); }} size={24} />
-              <div style={{ flex: 1, minWidth: 0 }} onClick={() => { if (!isDragging && swipeX === 0) openTaskDetail(task); }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
                   <h3 style={{ fontSize: '16px', fontWeight: 500, color: task.completed ? COLORS.textMuted : COLORS.text, lineHeight: 1.4, margin: 0, textDecoration: task.completed ? 'line-through' : 'none' }}>{task.title}</h3>
                   {subtaskProgress !== null && !task.completed && (
@@ -620,12 +594,13 @@ const SideQuests = () => {
                       <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{subtaskProgress}%</span>
                     </div>
                   )}
+                  {task.completed && <PixelCheck size={20} />}
                 </div>
                 {!task.completed && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                     <EnergyIndicator level={task.energy} />
                     <DeadlineIndicator deadline={task.deadline} />
-                    {task.category === 'backlog' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>✨ Marinating</span>}
+                    {task.category === 'backlog' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>Marinating</span>}
                   </div>
                 )}
               </div>
@@ -654,12 +629,9 @@ const SideQuests = () => {
         </div>
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', overflowX: 'hidden' }}>
           <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
-              <TaskCheckbox checked={currentTask.completed} onToggle={() => completeTask(currentTask.id)} size={28} />
-              <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0 }}>{currentTask.title}</h1>
-            </div>
+            <h1 style={{ fontSize: '20px', fontWeight: 600, lineHeight: 1.4, color: currentTask.completed ? COLORS.textMuted : COLORS.text, textDecoration: currentTask.completed ? 'line-through' : 'none', margin: 0, marginBottom: '16px' }}>{currentTask.title}</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.category === 'priority' ? COLORS.priority : COLORS.primary, backgroundColor: (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '26', border: '1px solid ' + (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '4d' }}>{currentTask.category === 'priority' ? '🔥 Priority' : '📋 Backlog'}</span>
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.category === 'priority' ? COLORS.priority : COLORS.primary, backgroundColor: (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '26', border: '1px solid ' + (currentTask.category === 'priority' ? COLORS.priority : COLORS.primary) + '4d' }}>{currentTask.category === 'priority' ? 'Priority' : 'Backlog'}</span>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent, backgroundColor: (currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent) + '26', border: '1px solid ' + (currentTask.energy === 'low' ? COLORS.success : currentTask.energy === 'high' ? COLORS.secondary : COLORS.urgent) + '4d' }}>{currentTask.energy} energy</span>
               {currentTask.deadline && (
                 <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px', color: getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary, backgroundColor: (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '26', border: '1px solid ' + (getDeadlineStatus(currentTask.deadline) === 'overdue' ? COLORS.overdue : COLORS.secondary) + '4d' }}>
@@ -671,7 +643,14 @@ const SideQuests = () => {
               <label style={{ display: 'block', color: COLORS.textMuted, marginBottom: '8px', fontSize: '12px' }}>Notes</label>
               {editingNotes ? (
                 <div>
-                  <textarea value={tempNotes} onChange={(e) => setTempNotes(e.target.value)} placeholder="Add notes..." rows={4} autoFocus style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', color: COLORS.text, fontSize: '14px', borderRadius: '4px', border: '1px solid ' + COLORS.primary, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                  <textarea 
+                    ref={notesRef}
+                    value={tempNotes} 
+                    onChange={(e) => setTempNotes(e.target.value)} 
+                    placeholder="Add notes..." 
+                    autoFocus 
+                    style={{ width: '100%', backgroundColor: COLORS.bg, padding: '12px', color: COLORS.text, fontSize: '14px', borderRadius: '4px', border: '1px solid ' + COLORS.primary, outline: 'none', resize: 'none', boxSizing: 'border-box', minHeight: '80px', overflow: 'hidden' }} 
+                  />
                   <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                     <button onClick={() => saveNotes(currentTask.id)} style={{ flex: 1, padding: '10px', backgroundColor: COLORS.primary, color: COLORS.bg, borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 500 }}>Save</button>
                     <button onClick={() => { setEditingNotes(false); setTempNotes(currentTask.notes || ''); }} style={{ padding: '10px 16px', backgroundColor: COLORS.card, color: COLORS.textMuted, borderRadius: '4px', border: '1px solid ' + COLORS.border, cursor: 'pointer' }}>Cancel</button>
@@ -702,7 +681,9 @@ const SideQuests = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {currentTask.subtasks.map((subtask, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: COLORS.bg, borderRadius: '4px' }}>
-                    <TaskCheckbox checked={subtask.completed} onToggle={() => toggleSubtask(currentTask.id, idx)} size={20} />
+                    <button onClick={() => toggleSubtask(currentTask.id, idx)} style={{ width: '20px', height: '20px', borderRadius: '50%', border: subtask.completed ? 'none' : '2px solid ' + COLORS.textMuted, backgroundColor: subtask.completed ? COLORS.success : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+                      {subtask.completed && <svg width={12} height={12} viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke={COLORS.bg} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </button>
                     <span style={{ flex: 1, color: subtask.completed ? COLORS.textMuted : COLORS.text, textDecoration: subtask.completed ? 'line-through' : 'none' }}>{subtask.text}</span>
                     <button onClick={() => deleteSubtask(currentTask.id, idx)} style={{ padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={16} color={COLORS.textMuted} /></button>
                   </div>
@@ -798,35 +779,11 @@ const SideQuests = () => {
           </div>
           {completedTasks.length > 0 && (
             <div>
-              <SectionHeader title="Completed" count={completedTasks.length} color={COLORS.success} />
-              <p style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '12px', marginTop: '-8px' }}>Swipe right to archive</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{completedTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
-            </div>
-          )}
-          {archivedTasks.length > 0 && (
-            <div>
-              <button onClick={() => setShowArchive(!showArchive)} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: COLORS.textMuted }} />
-                <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.textMuted, lineHeight: '28px' }}>Archive</h2>
-                <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({archivedTasks.length})</span>
-                {showArchive ? <ChevronUp size={16} color={COLORS.textMuted} /> : <ChevronDown size={16} color={COLORS.textMuted} />}
-              </button>
-              {showArchive && (
+              <SectionHeader title="Completed" count={completedTasks.length} color={COLORS.success} collapsible collapsed={!showCompleted} onToggle={() => setShowCompleted(!showCompleted)} />
+              {showCompleted && (
                 <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                    {archivedTasks.map(task => (
-                      <div key={task.id} className="pixel-card" style={{ backgroundColor: COLORS.cardHover, padding: '16px', borderRadius: '4px', border: '1px solid ' + COLORS.borderLight, opacity: 0.7 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <TaskCheckbox checked={true} onToggle={() => {}} size={20} />
-                            <span style={{ textDecoration: 'line-through', color: COLORS.textMuted }}>{task.title}</span>
-                          </div>
-                          <button onClick={() => unarchiveTask(task.id)} style={{ padding: '6px 12px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontSize: '12px', border: 'none', cursor: 'pointer' }}>Restore</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button onClick={clearArchived} style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', color: COLORS.textMuted, border: '1px dashed ' + COLORS.border, borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>Clear Archive</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>{completedTasks.map(task => <TaskCard key={task.id} task={task} />)}</div>
+                  <button onClick={clearCompleted} style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', color: COLORS.textMuted, border: '1px dashed ' + COLORS.border, borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>Clear Completed</button>
                 </>
               )}
             </div>
@@ -858,8 +815,6 @@ const SideQuests = () => {
         @keyframes trophy-bounce { 0% { transform: scale(0.3) translateY(20px); opacity: 0; } 50% { transform: scale(1.2) translateY(-10px); } 70% { transform: scale(0.9) translateY(0); } 100% { transform: scale(1) translateY(0); opacity: 1; } }
         @keyframes text-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100px) rotate(360deg); } }
-        .check-pop { animation: check-pop 0.3s ease-out; }
-        @keyframes check-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .task-completed-card { animation: complete-flash 0.4s ease-out; }
         @keyframes complete-flash { 0% { background-color: ${COLORS.card}; } 50% { background-color: ${COLORS.success}33; } 100% { background-color: ${COLORS.card}; } }
         .deadline-indicator.overdue { animation: pulse-red 2s ease-in-out infinite; }
