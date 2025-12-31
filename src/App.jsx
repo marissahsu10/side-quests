@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, ChevronDown, ChevronUp, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Plus, Trash2, Edit2, Wand2, Mic, ArrowLeft, X, Trophy, ChevronDown, ChevronUp, CheckCircle2, RotateCcw, Settings, Loader2 } from 'lucide-react';
 
 const COLORS = {
   primary: '#2DD4BF',
@@ -267,6 +267,58 @@ const LoginScreen = ({ onLogin }) => {
   );
 };
 
+const SettingsScreen = ({ onClose, apiKey, setApiKey }) => {
+  const [tempKey, setTempKey] = useState(apiKey || '');
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    storage.set('side-quests-api-key', tempKey);
+    setApiKey(tempKey);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleClear = () => {
+    setTempKey('');
+    storage.set('side-quests-api-key', '');
+    setApiKey('');
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: COLORS.bg, zIndex: 50, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: COLORS.bg, borderBottom: '1px solid ' + COLORS.border, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+        <button onClick={onClose} style={{ padding: '8px', marginLeft: '-8px', background: 'none', border: 'none', cursor: 'pointer' }}><ArrowLeft size={22} color={COLORS.textMuted} /></button>
+        <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px', flex: 1 }}>Settings</h2>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: COLORS.text, margin: '0 0 8px 0' }}>Claude API Key</h3>
+          <p style={{ fontSize: '14px', color: COLORS.textMuted, margin: '0 0 16px 0' }}>Required for AI task breakdown. Get your key from <span style={{ color: COLORS.primary }}>console.anthropic.com</span></p>
+          <input
+            type="password"
+            value={tempKey}
+            onChange={(e) => setTempKey(e.target.value)}
+            placeholder="sk-ant-api..."
+            style={{ width: '100%', backgroundColor: COLORS.bg, padding: '14px 16px', color: COLORS.text, fontSize: '14px', borderRadius: '4px', border: '1px solid ' + COLORS.border, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
+          />
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+            <button onClick={handleSave} className="pixel-shadow" style={{ flex: 1, padding: '12px', backgroundColor: saved ? COLORS.success : COLORS.primary, color: COLORS.bg, borderRadius: '4px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+              {saved ? 'Saved!' : 'Save Key'}
+            </button>
+            {tempKey && (
+              <button onClick={handleClear} className="pixel-shadow" style={{ padding: '12px 16px', backgroundColor: COLORS.card, color: COLORS.textMuted, borderRadius: '4px', border: '1px solid ' + COLORS.border, cursor: 'pointer' }}>Clear</button>
+            )}
+          </div>
+        </div>
+        <div className="pixel-card" style={{ backgroundColor: COLORS.card, padding: '20px', borderRadius: '4px', border: '1px solid ' + COLORS.border }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: COLORS.text, margin: '0 0 8px 0' }}>About</h3>
+          <p style={{ fontSize: '14px', color: COLORS.textMuted, margin: 0 }}>Side Quests is a personal task manager built for ADHD brains. Your data is stored locally on this device.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TaskForm = ({ task, onSave, onCancel }) => {
   const [title, setTitle] = useState(task?.title || '');
   const [notes, setNotes] = useState(task?.notes || '');
@@ -352,6 +404,9 @@ const SideQuests = () => {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [showCleared, setShowCleared] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
   const [newSubtask, setNewSubtask] = useState('');
   const [editingNotes, setEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
@@ -362,7 +417,11 @@ const SideQuests = () => {
   const idleSectionRef = useRef(null);
   const notesRef = useRef(null);
 
-  useEffect(() => { if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true); }, []);
+  useEffect(() => { 
+    if (localStorage.getItem('side-quests-auth') === 'true') setIsLoggedIn(true);
+    const savedKey = storage.get('side-quests-api-key');
+    if (savedKey) setApiKey(savedKey);
+  }, []);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -523,6 +582,67 @@ const SideQuests = () => {
   };
 
   const clearCleared = () => saveTasks(tasks.filter(t => !t.completed));
+
+  const aiBreakdown = async (taskId) => {
+    if (!apiKey) {
+      setShowSettings(true);
+      return;
+    }
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    setAiLoading(true);
+    
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          messages: [{
+            role: 'user',
+            content: `Break down this task into 3-7 small, actionable steps. Each step should be something that can be done in one sitting (ideally under 30 minutes).
+
+Task: ${task.title}
+${task.notes ? `Context: ${task.notes}` : ''}
+
+Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "Step 2", "Step 3"]`
+          }]
+        })
+      });
+      
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'API request failed');
+      }
+      
+      const data = await response.json();
+      const content = data.content[0]?.text || '';
+      
+      // Parse the JSON array from response
+      const match = content.match(/\[[\s\S]*\]/);
+      if (!match) throw new Error('Could not parse response');
+      
+      const steps = JSON.parse(match[0]);
+      
+      if (Array.isArray(steps) && steps.length > 0) {
+        const newSubtasks = steps.map(text => ({ text: String(text), completed: false }));
+        saveTasks(tasks.map(t => t.id === taskId ? { ...t, subtasks: [...(t.subtasks || []), ...newSubtasks] } : t));
+      }
+    } catch (err) {
+      console.error('AI Breakdown error:', err);
+      alert('AI Breakdown failed: ' + err.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleDragMove = (clientY) => {
     if (!draggedTask) return;
@@ -737,8 +857,12 @@ const SideQuests = () => {
             )}
             {(!currentTask.subtasks || currentTask.subtasks.length === 0) && (
               <div style={{ textAlign: 'center', paddingTop: '16px' }}>
-                <button className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
-                  <Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down
+                <button onClick={() => aiBreakdown(currentTask.id)} disabled={aiLoading} className="pixel-shadow" style={{ padding: '12px 24px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: aiLoading ? 'default' : 'pointer', opacity: aiLoading ? 0.6 : 1 }}>
+                  {aiLoading ? (
+                    <><Loader2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />Breaking down...</>
+                  ) : (
+                    <><Wand2 size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />AI Break Down</>
+                  )}
                 </button>
               </div>
             )}
@@ -759,18 +883,13 @@ const SideQuests = () => {
         </div>
       )}
       <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: '1px solid ' + COLORS.border }}>
-        <div style={{ padding: '16px 16px 16px 12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <PixelSword size={32} />
             <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>SIDE QUESTS</h1>
           </div>
-        </div>
-        <div style={{ display: 'flex' }}>
-          <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: '2px solid ' + (view === 'intel' ? COLORS.primary : 'transparent'), color: view === 'intel' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Intel {intel.length > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{intel.length}</span>}
-          </button>
-          <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, padding: '12px', fontSize: '10px', lineHeight: '24px', textAlign: 'center', background: 'none', border: 'none', borderBottom: '2px solid ' + (view === 'tasks' ? COLORS.primary : 'transparent'), color: view === 'tasks' ? COLORS.primary : COLORS.textMuted, cursor: 'pointer' }}>
-            Quests {(activeQuests.length + idleQuests.length) > 0 && <span style={{ marginLeft: '8px', padding: '2px 6px', fontSize: '12px', borderRadius: '4px', backgroundColor: COLORS.primary + '26', color: COLORS.primary }}>{activeQuests.length + idleQuests.length}</span>}
+          <button onClick={() => setShowSettings(true)} style={{ position: 'absolute', right: '16px', padding: '8px', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Settings size={22} color={COLORS.textMuted} />
           </button>
         </div>
       </div>
@@ -837,11 +956,24 @@ const SideQuests = () => {
         </div>
       )}
       {view === 'tasks' && !showTaskForm && (
-        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
+        <></>
+      )}
+      {/* Bottom Navigation */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.bg, borderTop: '1px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '12px 0 28px 0', zIndex: 40 }}>
+        <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
+          {view === 'intel' && <span style={{ color: COLORS.text }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted }}>Intel</span>
+        </button>
+        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer', marginTop: '-32px' }}>
           <Plus size={26} strokeWidth={2.5} />
         </button>
-      )}
+        <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
+          {view === 'tasks' && <span style={{ color: COLORS.text }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'tasks' ? COLORS.text : COLORS.textMuted }}>Quests</span>
+        </button>
+      </div>
       {showTaskForm && <TaskForm task={editingTask} onSave={addOrUpdateTask} onCancel={closeTaskForm} />}
+      {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} apiKey={apiKey} setApiKey={setApiKey} />}
       <style>{`
         .font-pixel-title { font-family: 'Pixelify Sans', monospace; font-weight: 400; }
         .font-pixel { font-family: 'Dogica Pixel', monospace; font-weight: 400; }
@@ -861,6 +993,7 @@ const SideQuests = () => {
         @keyframes trophy-bounce { 0% { transform: scale(0.3) translateY(20px); opacity: 0; } 50% { transform: scale(1.2) translateY(-10px); } 70% { transform: scale(0.9) translateY(0); } 100% { transform: scale(1) translateY(0); opacity: 1; } }
         @keyframes text-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100px) rotate(360deg); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .task-completed-card { animation: complete-flash 0.4s ease-out; }
         @keyframes complete-flash { 0% { background-color: ${COLORS.card}; } 50% { background-color: ${COLORS.success}33; } 100% { background-color: ${COLORS.card}; } }
         .deadline-indicator.overdue { animation: pulse-red 2s ease-in-out infinite; }
