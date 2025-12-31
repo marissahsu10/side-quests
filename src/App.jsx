@@ -180,7 +180,9 @@ const DifficultyIndicator = ({ level }) => {
 
 const DifficultyPips = ({ level }) => {
   const cfg = getDifficultyConfig(level);
-  const pips = level === 'easy' ? 1 : level === 'hard' ? 3 : 2;
+  // Handle both old (low/medium/high) and new (easy/medium/hard) values
+  const normalizedLevel = level === 'low' ? 'easy' : level === 'high' ? 'hard' : level;
+  const pips = normalizedLevel === 'easy' ? 1 : normalizedLevel === 'hard' ? 3 : 2;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }} title={cfg.label}>
       {[1, 2, 3].map(i => (
@@ -225,12 +227,12 @@ const SectionHeader = ({ title, count, color, collapsible, collapsed, onToggle }
   <button 
     onClick={onToggle}
     disabled={!collapsible}
-    style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: '8px 0', minHeight: '44px' }}
+    style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: 0 }}
   >
-    <div style={{ width: '12px', height: '12px', backgroundColor: color, borderRadius: '2px', boxShadow: '0 0 8px ' + color + '60' }} />
+    <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: color }} />
     <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
-    <span style={{ fontSize: '14px', color: COLORS.textMuted }}>({count})</span>
-    {collapsible && (collapsed ? <ChevronDown size={18} color={COLORS.textMuted} /> : <ChevronUp size={18} color={COLORS.textMuted} />)}
+    <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
+    {collapsible && (collapsed ? <ChevronDown size={16} color={COLORS.textMuted} /> : <ChevronUp size={16} color={COLORS.textMuted} />)}
   </button>
 );
 
@@ -764,7 +766,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
         )}
         <div
           className={'pixel-card' + (task.completed ? ' task-completed-card' : '') + (isOverdue ? ' task-overdue-card' : '')}
-          style={{ position: 'relative', backgroundColor: isOverdue ? COLORS.overdue + '15' : COLORS.card, borderRadius: '4px', border: '1px solid ' + (task.completed ? COLORS.success + '40' : COLORS.border), borderLeft: task.completed ? undefined : '3px solid ' + (task.mode === 'active' ? COLORS.active : COLORS.primary), transform: 'translateX(' + swipeX + 'px)', transition: swipeX === 0 ? 'transform 0.2s' : 'none' }}
+          style={{ position: 'relative', backgroundColor: isOverdue ? COLORS.overdue + '15' : COLORS.card, borderRadius: '4px', border: '1px solid ' + (task.completed ? COLORS.success + '40' : COLORS.border), transform: 'translateX(' + swipeX + 'px)', transition: swipeX === 0 ? 'transform 0.2s' : 'none' }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
