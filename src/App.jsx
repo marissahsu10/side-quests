@@ -178,6 +178,26 @@ const DifficultyIndicator = ({ level }) => {
   return <span style={{ fontSize: '12px', color: cfg.color }}>{cfg.label}</span>;
 };
 
+const DifficultyPips = ({ level }) => {
+  const cfg = getDifficultyConfig(level);
+  const pips = level === 'easy' ? 1 : level === 'hard' ? 3 : 2;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }} title={cfg.label}>
+      {[1, 2, 3].map(i => (
+        <div 
+          key={i} 
+          style={{ 
+            width: '6px', 
+            height: '6px', 
+            borderRadius: '1px',
+            backgroundColor: i <= pips ? cfg.color : COLORS.border,
+          }} 
+        />
+      ))}
+    </div>
+  );
+};
+
 const DeadlineIndicator = ({ deadline }) => {
   const status = getDeadlineStatus(deadline);
   if (!status) return null;
@@ -205,21 +225,22 @@ const SectionHeader = ({ title, count, color, collapsible, collapsed, onToggle }
   <button 
     onClick={onToggle}
     disabled={!collapsible}
-    style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: 0 }}
+    style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: '8px 0', minHeight: '44px' }}
   >
-    <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: color }} />
+    <div style={{ width: '12px', height: '12px', backgroundColor: color, borderRadius: '2px', boxShadow: '0 0 8px ' + color + '60' }} />
     <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
-    <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
-    {collapsible && (collapsed ? <ChevronDown size={16} color={COLORS.textMuted} /> : <ChevronUp size={16} color={COLORS.textMuted} />)}
+    <span style={{ fontSize: '14px', color: COLORS.textMuted }}>({count})</span>
+    {collapsible && (collapsed ? <ChevronDown size={18} color={COLORS.textMuted} /> : <ChevronUp size={18} color={COLORS.textMuted} />)}
   </button>
 );
 
-const EmptyState = ({ icon: Icon, description, action, actionLabel }) => (
+const EmptyState = ({ icon: Icon, title, description, action, actionLabel }) => (
   <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><Icon size={48} /></div>
-    <p style={{ color: COLORS.textMuted, marginBottom: '24px', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', fontSize: '14px' }}>{description}</p>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', opacity: 0.8 }}><Icon size={48} /></div>
+    {title && <h3 style={{ color: COLORS.text, fontSize: '16px', fontWeight: 500, margin: '0 0 8px 0' }}>{title}</h3>}
+    <p style={{ color: COLORS.textMuted, marginBottom: '24px', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', fontSize: '14px', lineHeight: 1.5 }}>{description}</p>
     {action && (
-      <button onClick={action} className="pixel-shadow" style={{ padding: '10px 24px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
+      <button onClick={action} className="pixel-shadow" style={{ padding: '12px 28px', backgroundColor: COLORS.primary + '26', color: COLORS.primary, borderRadius: '4px', fontWeight: 500, border: 'none', cursor: 'pointer', fontSize: '14px' }}>
         {actionLabel}
       </button>
     )}
@@ -681,6 +702,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
     const daysWaiting = getDaysWaiting(task.createdAt);
     const subtaskProgress = (task.subtasks && task.subtasks.length) ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100) : null;
     const isBeingDragged = draggedTask?.id === task.id;
+    const isOverdue = task.deadline && getDeadlineStatus(task.deadline) === 'overdue';
 
     const handleTouchStart = (e) => {
       const touch = e.touches[0];
@@ -741,8 +763,8 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
           </div>
         )}
         <div
-          className={'pixel-card' + (task.completed ? ' task-completed-card' : '')}
-          style={{ position: 'relative', backgroundColor: COLORS.card, borderRadius: '4px', border: '1px solid ' + (task.completed ? COLORS.success + '40' : COLORS.border), transform: 'translateX(' + swipeX + 'px)', transition: swipeX === 0 ? 'transform 0.2s' : 'none' }}
+          className={'pixel-card' + (task.completed ? ' task-completed-card' : '') + (isOverdue ? ' task-overdue-card' : '')}
+          style={{ position: 'relative', backgroundColor: isOverdue ? COLORS.overdue + '15' : COLORS.card, borderRadius: '4px', border: '1px solid ' + (task.completed ? COLORS.success + '40' : COLORS.border), borderLeft: task.completed ? undefined : '3px solid ' + (task.mode === 'active' ? COLORS.active : COLORS.primary), transform: 'translateX(' + swipeX + 'px)', transition: swipeX === 0 ? 'transform 0.2s' : 'none' }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -761,8 +783,8 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
                   {task.completed && <PixelCheck size={20} />}
                 </div>
                 {!task.completed && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-                    <DifficultyIndicator level={task.difficulty} />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
+                    <DifficultyPips level={task.difficulty} />
                     <DeadlineIndicator deadline={task.deadline} />
                     {task.mode === 'idle' && daysWaiting > 7 && <span style={{ fontSize: '12px', color: COLORS.secondary }}>Marinating</span>}
                   </div>
@@ -902,7 +924,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
             <button onClick={addIntel} disabled={!newIntel.trim()} className="pixel-shadow" style={{ marginTop: '12px', width: '100%', backgroundColor: COLORS.primary, color: COLORS.bg, padding: '14px', borderRadius: '4px', fontWeight: 600, fontSize: '16px', border: 'none', opacity: !newIntel.trim() ? 0.4 : 1, cursor: !newIntel.trim() ? 'default' : 'pointer' }}>Capture Thought</button>
           </div>
           {intel.length === 0 ? (
-            <EmptyState icon={PixelScroll} description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
+            <EmptyState icon={PixelScroll} title="Your mind is clear!" description="Capture fleeting thoughts here. Turn them into quests when you're ready." />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {intel.map((item) => (
@@ -934,7 +956,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
               dropTarget === 'idle' ? (
                 <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>Drop here!</p>
               ) : (
-                <EmptyState icon={PixelSparkle} description="Add a quest to get started." action={() => openTaskForm()} actionLabel="Add Quest" />
+                <EmptyState icon={PixelSparkle} title="Ready for adventure?" description="Add your first quest and start conquering your to-do list." action={() => openTaskForm()} actionLabel="+ New Quest" />
               )
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{idleQuests.map(task => <TaskCard key={task.id} task={task} />)}</div>
@@ -958,7 +980,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
         <></>
       )}
       {/* Bottom Navigation */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.card, borderTop: '1px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '16px 0 28px 0', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.bg, borderTop: '2px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '16px 0 28px 0', zIndex: 40 }}>
         <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
           {view === 'intel' && <span style={{ color: COLORS.text, lineHeight: 1 }}>▶</span>}
           <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted, lineHeight: 1 }}>Intel</span>
@@ -994,7 +1016,9 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
         @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100px) rotate(360deg); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .task-completed-card { animation: complete-flash 0.4s ease-out; }
+        .task-overdue-card { animation: overdue-pulse 3s ease-in-out infinite; }
         @keyframes complete-flash { 0% { background-color: ${COLORS.card}; } 50% { background-color: ${COLORS.success}33; } 100% { background-color: ${COLORS.card}; } }
+        @keyframes overdue-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
         .deadline-indicator.overdue { animation: pulse-red 2s ease-in-out infinite; }
         .deadline-indicator.soon { animation: pulse-amber 2s ease-in-out infinite; }
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
