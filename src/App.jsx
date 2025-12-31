@@ -883,14 +883,13 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
         </div>
       )}
       <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: '1px solid ' + COLORS.border }}>
-        <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <PixelSword size={32} />
+            <button onClick={() => setShowSettings(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <PixelSword size={32} />
+            </button>
             <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>SIDE QUESTS</h1>
           </div>
-          <button onClick={() => setShowSettings(true)} style={{ position: 'absolute', right: '16px', padding: '8px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <Settings size={22} color={COLORS.textMuted} />
-          </button>
         </div>
       </div>
       {view === 'intel' && (
@@ -959,17 +958,17 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
         <></>
       )}
       {/* Bottom Navigation */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.bg, borderTop: '1px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '12px 0 28px 0', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.card, borderTop: '1px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '16px 0 28px 0', zIndex: 40 }}>
         <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
-          {view === 'intel' && <span style={{ color: COLORS.text }}>▶</span>}
-          <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted }}>Intel</span>
+          {view === 'intel' && <span style={{ color: COLORS.text, lineHeight: 1 }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted, lineHeight: 1 }}>Intel</span>
         </button>
-        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer', marginTop: '-32px' }}>
+        <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
           <Plus size={26} strokeWidth={2.5} />
         </button>
         <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
-          {view === 'tasks' && <span style={{ color: COLORS.text }}>▶</span>}
-          <span style={{ fontSize: '14px', color: view === 'tasks' ? COLORS.text : COLORS.textMuted }}>Quests</span>
+          {view === 'tasks' && <span style={{ color: COLORS.text, lineHeight: 1 }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'tasks' ? COLORS.text : COLORS.textMuted, lineHeight: 1 }}>Quests</span>
         </button>
       </div>
       {showTaskForm && <TaskForm task={editingTask} onSave={addOrUpdateTask} onCancel={closeTaskForm} />}
