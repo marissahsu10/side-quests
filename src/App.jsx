@@ -94,6 +94,19 @@ const PixelCheck = ({ size = 20 }) => (
   </svg>
 );
 
+const PixelTrophy = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
+    <rect x="2" y="1" width="12" height="2" fill={COLORS.urgent}/>
+    <rect x="1" y="3" width="3" height="4" fill={COLORS.urgent}/>
+    <rect x="12" y="3" width="3" height="4" fill={COLORS.urgent}/>
+    <rect x="4" y="3" width="8" height="6" fill={COLORS.urgent}/>
+    <rect x="5" y="4" width="2" height="2" fill="#FDE68A"/>
+    <rect x="6" y="9" width="4" height="2" fill={COLORS.urgent}/>
+    <rect x="5" y="11" width="6" height="2" fill="#A78BFA"/>
+    <rect x="4" y="13" width="8" height="2" fill="#A78BFA"/>
+  </svg>
+);
+
 const storage = {
   get: (key) => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
   set: (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
@@ -223,12 +236,13 @@ const DeadlineIndicator = ({ deadline }) => {
   return <span style={{ fontSize: '12px', color: COLORS.secondary }}>{formatted}</span>;
 };
 
-const SectionHeader = ({ title, count, color, collapsible, collapsed, onToggle }) => (
+const SectionHeader = ({ title, count, icon, collapsible, collapsed, onToggle }) => (
   <button 
     onClick={onToggle}
     disabled={!collapsible}
     style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: 0 }}
   >
+    {icon}
     <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
     <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
     {collapsible && (collapsed ? <ChevronDown size={16} color={COLORS.textMuted} /> : <ChevronUp size={16} color={COLORS.textMuted} />)}
@@ -944,7 +958,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
       {view === 'tasks' && (
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
           <div ref={activeSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'active' ? COLORS.active + '26' : 'transparent', boxShadow: dropTarget === 'active' ? '0 0 0 2px ' + COLORS.active + '80' : 'none' }}>
-            <SectionHeader title="Active" count={activeQuests.length} color={COLORS.active} />
+            <SectionHeader title="Active" count={activeQuests.length} />
             {activeQuests.length === 0 ? (
               <p style={{ color: COLORS.textMuted, padding: '10px 0', textAlign: 'center', fontSize: '14px' }}>{dropTarget === 'active' ? 'Drop here!' : 'No active quests'}</p>
             ) : (
@@ -952,7 +966,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
             )}
           </div>
           <div ref={idleSectionRef} style={{ transition: 'all 0.2s', borderRadius: '4px', padding: '8px', margin: '-8px', backgroundColor: dropTarget === 'idle' ? COLORS.primary + '26' : 'transparent', boxShadow: dropTarget === 'idle' ? '0 0 0 2px ' + COLORS.primary + '80' : 'none' }}>
-            <SectionHeader title="Idle" count={idleQuests.length} color={COLORS.primary} />
+            <SectionHeader title="Idle" count={idleQuests.length} />
             {idleQuests.length === 0 ? (
               dropTarget === 'idle' ? (
                 <p style={{ color: COLORS.textMuted, padding: '16px 0', textAlign: 'center', fontSize: '14px' }}>Drop here!</p>
@@ -965,7 +979,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
           </div>
           {clearedTasks.length > 0 && (
             <div>
-              <SectionHeader title="Cleared" count={clearedTasks.length} color={COLORS.success} collapsible collapsed={!showCleared} onToggle={() => setShowCleared(!showCleared)} />
+              <SectionHeader title="Cleared" count={clearedTasks.length} icon={<PixelTrophy size={14} />} collapsible collapsed={!showCleared} onToggle={() => setShowCleared(!showCleared)} />
               {showCleared && (
                 <>
                   <p style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '12px', marginTop: '-8px' }}>Swipe right to restore</p>
