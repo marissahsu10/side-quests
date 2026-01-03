@@ -229,7 +229,6 @@ const SectionHeader = ({ title, count, color, collapsible, collapsed, onToggle }
     disabled={!collapsible}
     style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', background: 'none', border: 'none', cursor: collapsible ? 'pointer' : 'default', padding: 0 }}
   >
-    <div className="pixel-dot" style={{ width: '8px', height: '8px', backgroundColor: color }} />
     <h2 className="font-pixel" style={{ fontSize: '12px', color: COLORS.text, lineHeight: '28px' }}>{title}</h2>
     <span style={{ fontSize: '12px', color: COLORS.textMuted }}>({count})</span>
     {collapsible && (collapsed ? <ChevronDown size={16} color={COLORS.textMuted} /> : <ChevronUp size={16} color={COLORS.textMuted} />)}
@@ -908,8 +907,8 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
       )}
       <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: COLORS.bg, borderBottom: '1px solid ' + COLORS.border }}>
         <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <button onClick={() => setShowSettings(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button onClick={() => setShowSettings(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginRight: '-2px' }}>
               <PixelSword size={32} />
             </button>
             <h1 className="font-pixel-title" style={{ fontSize: '32px', color: COLORS.text, lineHeight: '28px', margin: 0 }}>SIDE QUESTS</h1>
