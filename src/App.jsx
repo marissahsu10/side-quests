@@ -94,16 +94,17 @@ const PixelCheck = ({ size = 20 }) => (
   </svg>
 );
 
-const PixelTrophy = ({ size = 14 }) => (
+const PixelStar = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" style={{ imageRendering: 'pixelated' }}>
-    <rect x="2" y="1" width="12" height="2" fill={COLORS.urgent}/>
-    <rect x="1" y="3" width="3" height="4" fill={COLORS.urgent}/>
-    <rect x="12" y="3" width="3" height="4" fill={COLORS.urgent}/>
-    <rect x="4" y="3" width="8" height="6" fill={COLORS.urgent}/>
-    <rect x="5" y="4" width="2" height="2" fill="#FDE68A"/>
-    <rect x="6" y="9" width="4" height="2" fill={COLORS.urgent}/>
-    <rect x="5" y="11" width="6" height="2" fill="#A78BFA"/>
-    <rect x="4" y="13" width="8" height="2" fill="#A78BFA"/>
+    <rect x="7" y="0" width="2" height="2" fill={COLORS.urgent}/>
+    <rect x="7" y="2" width="2" height="2" fill={COLORS.urgent}/>
+    <rect x="5" y="4" width="6" height="2" fill={COLORS.urgent}/>
+    <rect x="1" y="6" width="14" height="2" fill={COLORS.urgent}/>
+    <rect x="3" y="8" width="10" height="2" fill={COLORS.urgent}/>
+    <rect x="4" y="10" width="3" height="2" fill={COLORS.urgent}/>
+    <rect x="9" y="10" width="3" height="2" fill={COLORS.urgent}/>
+    <rect x="3" y="12" width="2" height="2" fill={COLORS.urgent}/>
+    <rect x="11" y="12" width="2" height="2" fill={COLORS.urgent}/>
   </svg>
 );
 
@@ -979,7 +980,7 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
           </div>
           {clearedTasks.length > 0 && (
             <div>
-              <SectionHeader title="Cleared" count={clearedTasks.length} icon={<PixelTrophy size={14} />} collapsible collapsed={!showCleared} onToggle={() => setShowCleared(!showCleared)} />
+              <SectionHeader title="Cleared" count={clearedTasks.length} icon={<PixelStar size={14} />} collapsible collapsed={!showCleared} onToggle={() => setShowCleared(!showCleared)} />
               {showCleared && (
                 <>
                   <p style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '12px', marginTop: '-8px' }}>Swipe right to restore</p>
@@ -997,15 +998,15 @@ Reply with ONLY a JSON array of strings, no explanation. Example: ["Step 1", "St
       {/* Bottom Navigation */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.bg, borderTop: '2px solid ' + COLORS.border, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '16px 0 28px 0', zIndex: 40 }}>
         <button onClick={() => setView('intel')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
-          {view === 'intel' && <span style={{ color: COLORS.text, lineHeight: 1 }}>▶</span>}
-          <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted, lineHeight: 1 }}>Intel</span>
+          {view === 'intel' && <span style={{ color: COLORS.text, fontSize: '10px', marginTop: '-2px' }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'intel' ? COLORS.text : COLORS.textMuted }}>Intel</span>
         </button>
         <button onClick={() => openTaskForm()} className="pixel-shadow-strong" style={{ backgroundColor: COLORS.primary, color: COLORS.bg, padding: '16px', borderRadius: '50%', border: 'none', cursor: 'pointer' }}>
           <Plus size={26} strokeWidth={2.5} />
         </button>
         <button onClick={() => setView('tasks')} className="font-pixel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
-          {view === 'tasks' && <span style={{ color: COLORS.text, lineHeight: 1 }}>▶</span>}
-          <span style={{ fontSize: '14px', color: view === 'tasks' ? COLORS.text : COLORS.textMuted, lineHeight: 1 }}>Quests</span>
+          {view === 'tasks' && <span style={{ color: COLORS.text, fontSize: '10px', marginTop: '-2px' }}>▶</span>}
+          <span style={{ fontSize: '14px', color: view === 'tasks' ? COLORS.text : COLORS.textMuted }}>Quests</span>
         </button>
       </div>
       {showTaskForm && <TaskForm task={editingTask} onSave={addOrUpdateTask} onCancel={closeTaskForm} />}
